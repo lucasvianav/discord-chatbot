@@ -1,7 +1,6 @@
 import os
 
 import discord
-import requests
 from discord.ext import commands
 
 from config import *
@@ -9,6 +8,26 @@ from util import *
 
 # Bot client
 bot = commands.Bot(command_prefix='>')
+
+# Load cog
+@bot.command(aliases=['carregar', 'ativar'])
+async def load(ctx, extension):
+    bot.load_extension(f"cogs.{extension}")
+
+    response = await ctx.send(f"A categoria de comandos '{extension}' foi carregada com sucesso.")
+    await reactToResponse(bot, response)
+
+    print(f"\n [*] The '{extension}' cog was successfully loaded.")
+
+# Unload cog
+@bot.command(aliases=['descarregar', 'desativar'])
+async def unload(ctx, extension):
+    bot.unload_extension(f"cogs.{extension}")
+
+    response = await ctx.send(f"A categoria de comandos '{extension}' foi descarregada com sucesso.")
+    await reactToResponse(bot, response)
+
+    print(f"\n [*] The '{extension}' cog was successfully unloaded.")
 
 # When the bot has finished loading after being launched
 @bot.event
@@ -39,27 +58,9 @@ async def on_message(message):
 
             await reactToMessage(bot, message, ['🍉'])
 
+            img = getImage(element["RESPONSE IMAGE"])
+
             # If an image link was specified
-            if element["RESPONSE IMAGE"].startswith("http"):
-                try: # Gets image from link
-                    r = requests.get(element["RESPONSE IMAGE"]) 
-
-                except: # If the link is broken
-                    print("   [**] There was an error with the image link: " + element["RESPONSE IMAGE"])
-                    img = False
-
-                else: # If the link is fine
-                    # Downloads the image and closes the website
-                    with open("aux.png", "wb") as f: f.write(r.content)
-                    r.close()
-
-                    img = 'aux.png'
-                    print("   [**] The image was successfully downloaded.")
-
-            else: 
-                print("   [**] There is no image to attach.")
-                img = False
-
             if img: 
                 response = await message.channel.send(content=element["RESPONSE TEXT"], file=discord.File(img))
                 os.remove(img) # Deletes the image from local directory
@@ -86,7 +87,7 @@ async def credits(ctx):
     print("   [**] The response was successfully sent.")
     await reactToResponse(bot, response)
 
-# Call refreshSheet()
+# Calls refreshSheet() (definition in config.py)
 @bot.command(aliases=['atualizar', 'update'])
 async def refresh(ctx):
     print("\n [*] '>refresh' command called.")
@@ -94,6 +95,7 @@ async def refresh(ctx):
     await reactToMessage(bot, ctx.message, ['🔝', '👌', '🆗'])
 
     response = refreshSheet()
+    refreshCogs(bot, commandSheet)
 
     if response:
         print("   [**] The commands and triggers were successfully updated.")
@@ -107,4 +109,9 @@ async def refresh(ctx):
         print("   [**] The response was successfully sent.")
         await reactToResponse(bot, response, emojiList=['😢'])
 
-bot.run(DISCORD_TOKEN)
+
+
+if __name__ == '__main__':
+    refreshSheet()
+    refreshCogs(bot, commandSheet, hasLoaded=False)
+    bot.run(DISCORD_TOKEN)

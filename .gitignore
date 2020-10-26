@@ -1,5 +1,6 @@
 .secrets.json
 credentials.json
+cogs/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

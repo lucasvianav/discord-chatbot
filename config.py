@@ -3,8 +3,6 @@ import json
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
-from util import *
-
 # Gets tokens and keys
 with open(".secrets.json", "r") as f: data = json.load(f)
 DISCORD_TOKEN = data["discord-token"]
