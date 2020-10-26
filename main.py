@@ -1,43 +1,11 @@
-import json
 import os
 
 import discord
-import gspread
 import requests
 from discord.ext import commands
-from oauth2client.service_account import ServiceAccountCredentials
 
+from config import *
 from util import *
-
-# Gets tokens and keys
-with open("./.secrets.json", "r") as f: data = json.load(f)
-DISCORD_TOKEN = data["discord-token"]
-SPREADSHEET_KEY = data["spreadsheet-key"]
-
-# Use creds to create a client to interact with the Google Drive API
-scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
-client = gspread.authorize(creds)
-
-# Gets the spreadsheet's info (commands and triggers)
-spreadsheet = client.open_by_key(SPREADSHEET_KEY)
-commandSheet = spreadsheet.worksheet("commands").get_all_records()
-triggerSheet = spreadsheet.worksheet("triggers").get_all_records()
-
-# Function to update the commands and triggers
-# by getting the spreadsheet's info again
-def refreshSheet():
-    spreadsheet = client.open_by_key(SPREADSHEET_KEY)
-    commandSheet = spreadsheet.worksheet("commands").get_all_records()
-    triggerSheet = spreadsheet.worksheet("triggers").get_all_records()
-
-    # If the spreadsheet is empty
-    if len(triggerSheet) == 0 and len(commandSheet) == 0:
-        return False
-
-    # If it isn't
-    else: 
-        return True
 
 # Bot client
 bot = commands.Bot(command_prefix='>')
@@ -107,6 +75,7 @@ async def on_message(message):
 
     await bot.process_commands(message)
 
+# Bot's developer
 @bot.command(aliases=['créditos', 'creditos', 'dev'])
 async def credits(ctx):
     print("\n [*] '>credits' command called.")
@@ -117,6 +86,7 @@ async def credits(ctx):
     print("   [**] The response was successfully sent.")
     await reactToResponse(bot, response)
 
+# Call refreshSheet()
 @bot.command(aliases=['atualizar', 'update'])
 async def refresh(ctx):
     print("\n [*] '>refresh' command called.")
