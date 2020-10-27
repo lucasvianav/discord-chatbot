@@ -21,14 +21,11 @@ triggerSheet = spreadsheet.worksheet("triggers").get_all_records()
 # Function to update the commands and triggers
 # by getting the spreadsheet's info again
 def refreshSheet():
+    # Refreshes the sheet's data
     spreadsheet = client.open_by_key(SPREADSHEET_KEY)
     commandSheet = spreadsheet.worksheet("commands").get_all_records()
     triggerSheet = spreadsheet.worksheet("triggers").get_all_records()
 
-    # If the spreadsheet is empty
-    if len(triggerSheet) == 0 and len(commandSheet) == 0:
-        return False
+    isEmpty = True if len(triggerSheet) == 0 and len(commandSheet) == 0 else False
 
-    # If it isn't
-    else: 
-        return True
+    return spreadsheet, commandSheet, triggerSheet, isEmpty

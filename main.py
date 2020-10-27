@@ -1,13 +1,22 @@
 import os
 
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 from config import *
 from util import *
 
 # Bot client
 bot = commands.Bot(command_prefix='>')
+
+def refreshBot():
+    # Sets use of global variables
+    global spreadsheet; global commandSheet; global triggerSheet
+
+    spreadsheet, commandSheet, triggerSheet, isEmpty = refreshSheet()
+    refreshCogs(bot, commandSheet)
+
+    return isEmpty
 
 # Load cog
 @bot.command(aliases=['carregar', 'ativar'])
@@ -32,7 +41,13 @@ async def unload(ctx, extension):
 # When the bot has finished loading after being launched
 @bot.event
 async def on_ready():
-    print(" [*] The bot is running.")
+    print("\n [*] The bot is running.")
+
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">help"))
+    print("\n [*] The bot's status was successfully set.")
+
+    periodicRefresh.start()
+    print("\n [*] The periodic refresh task was successfully started.")
 
 # Whenever a new message is sent to a channel the bot has access to
 @bot.event
@@ -94,10 +109,9 @@ async def refresh(ctx):
 
     await reactToMessage(bot, ctx.message, ['🔝', '👌', '🆗'])
 
-    response = refreshSheet()
-    refreshCogs(bot, commandSheet)
+    isEmpty = refreshBot()
 
-    if response:
+    if not isEmpty:
         print("   [**] The commands and triggers were successfully updated.")
         response = await ctx.send("Os comandos e triggers foram atualizados com sucesso.")
         print("   [**] The response was successfully sent.")
@@ -109,9 +123,18 @@ async def refresh(ctx):
         print("   [**] The response was successfully sent.")
         await reactToResponse(bot, response, emojiList=['😢'])
 
+# Refreshes the commands and triggers every half an hour
+@tasks.loop(minutes=30)
+async def periodicRefresh():
+    print("\n [*] Time for a periodic refresh.")
+
+    isEmpty = refreshBot()
+
+    print("   [**] The commands and triggers were successfully updated", end="")
+    print(" - none registered.") if isEmpty else print(".")
 
 
-if __name__ == '__main__':
-    refreshSheet()
+
+if __name__ == "__main__":
     refreshCogs(bot, commandSheet, hasLoaded=False)
     bot.run(DISCORD_TOKEN)

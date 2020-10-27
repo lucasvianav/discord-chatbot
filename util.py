@@ -46,6 +46,7 @@ def getImage(img: str):
 
 # Generates cogs based on the sheet's commands
 def refreshCogs(bot, cogSheet: list, hasLoaded=True):
+    # Unloads and then removes all cogs
     for filename in os.listdir('./cogs'): 
         if filename.endswith('.py'):
             if hasLoaded: bot.unload_extension(f'cogs.{filename.replace(".py","")}')
@@ -82,7 +83,7 @@ def refreshCogs(bot, cogSheet: list, hasLoaded=True):
             cog.write("        await reactToMessage(self.bot, ctx.message, ['🍉'])\n\n")
 
             cog.write("        img = '%s'\n" % element["RESPONSE IMAGE"])
-            cog.write("        txt = '%s'\n\n" % element["RESPONSE TEXT"].replace("\n","\\n"))
+            cog.write("        txt = \"\"\"%s\"\"\"\n\n" % element["RESPONSE TEXT"].replace("\n","\\n").replace("'","\\'").replace('"','\\"'))
 
             cog.write("        img = getImage(img)\n\n")
 
@@ -103,6 +104,7 @@ def refreshCogs(bot, cogSheet: list, hasLoaded=True):
 
         cog.close()
 
+    # Loads all cogs
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
             bot.load_extension(f'cogs.{filename.replace(".py","")}')
