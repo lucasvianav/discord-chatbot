@@ -46,6 +46,8 @@ def getImage(img: str):
 
 # Generates cogs based on the sheet's commands
 def refreshCogs(bot, cogSheet: list, hasLoaded=True):
+    if not os.path.isdir('./cogs'): os.mkdir('./cogs')
+
     # Unloads and then removes all cogs
     for filename in os.listdir('./cogs'): 
         if filename.endswith('.py'):
@@ -110,6 +112,3 @@ def refreshCogs(bot, cogSheet: list, hasLoaded=True):
             bot.load_extension(f'cogs.{filename.replace(".py","")}')
 
     return
-
-# if __name__ == "__main__":
-#     refreshCogs(cogSheet)
