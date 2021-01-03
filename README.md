@@ -7,7 +7,7 @@ In order to run, you must provide your own Google Sheets API's credentials.json 
 The .env file consists in a DISCORD_TOKEN and a SPREADSHEET_KEY, as can be seen in the .env.example file.
 
 ## DISCORD_TOKEN
-You must create a discord application in https://discord.com/developers/applications/ and a bot inside it. The token needed is the bot's one, that can be found in https://discord.com/developers/applications/\<APPLICATION ID\>/bot - as can be seen in the image below.
+You must create a discord application in https://discord.com/developers/applications/ and a bot inside it. The token needed is the bot's one, that can be found in https://discord.com/developers/applications/<APPLICATION ID\>/bot - as can be seen in the image below.
 
 ![](discord-token-example.png "Where to get the DISCORD_TOKEN")
 
