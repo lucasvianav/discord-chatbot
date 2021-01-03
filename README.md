@@ -3,6 +3,16 @@
 Simple bot that'll reply to commands (prefix '>') and on_message() triggers specified in a Google Sheets.
 The spreadsheet must have two worksheets named "triggers" and "commands", respectively.
 
+In order to run, you must provide your own Google Sheets API's credentials.json and .env.
+The .env file consists in a DISCORD_TOKEN and a SPREADSHEET_KEY, as can be seen in the .env.example file.
+
+## DISCORD_TOKEN
+You must create a discord application in https://discord.com/developers/applications/ and a bot inside it. The token needed is the bot's one, that can be found in https://discord.com/developers/applications/<APPLICATION ID>/bot - as can be seen in the image below.
+
+## SPREADSHEET_KEY
+Get it from the spreadsheet's link: https://docs.google.com/spreadsheets/d/<SPREADSHEET_KEY>.
+Also, you must share the spreadsheet with your bot's email (from the Google Sheets API).
+
 ## Commands' worksheet
 It must have the following columns:
  - "COMMAND CATEGORY"
