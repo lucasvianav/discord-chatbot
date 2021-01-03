@@ -54,7 +54,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user: return
 
-    if message.content.lower() == "bom dia saselers":
+    if message.content.lower() == "bom dia":
         print(f"\n [*] Trigger: 'bom dia', by {message.author.display_name}.")
 
         # Reacts to the trigger message (definition in util.py)
@@ -98,7 +98,7 @@ async def credits(ctx):
 
     await reactToMessage(bot, ctx.message, ['🤙', '🍉', '😁', '💜', '👋'])
 
-    response = await ctx.send("Esse bot foi desenvolvido pelo Flip em um momento de tédio. \nGitHub: https://github.com/lucasvianav. \nRepositório no GitHub: https://github.com/lucasvianav/discord-bot-sasel.")
+    response = await ctx.send("Esse bot foi desenvolvido pelo Flip em um momento de tédio. Obrigado pelo interesse <3 \nGitHub: https://github.com/lucasvianav. \nRepositório no GitHub: https://github.com/lucasvianav/discord-chatbot.")
     print("   [**] The response was successfully sent.")
     await reactToResponse(bot, response)
 
@@ -123,6 +123,16 @@ async def refresh(ctx):
         print("   [**] The response was successfully sent.")
         await reactToResponse(bot, response, emojiList=['😢'])
 
+@bot.command()
+async def ban(ctx, *user):
+    print('\n [*] \'>ban\' command called.')
+
+    await reactToMessage(bot, ctx.message, ['👺'])
+
+    response = await ctx.send(f'O usuário \'' + ' '.join(user) + '\' foi banido.')
+
+    await reactToResponse(bot, response, emojiList=['💀'])
+
 # Refreshes the commands and triggers every half an hour
 @tasks.loop(minutes=30)
 async def periodicRefresh():
@@ -134,7 +144,6 @@ async def periodicRefresh():
     print(" - none registered.") if isEmpty else print(".")
 
 
-
-if __name__ == "__main__":
-    refreshCogs(bot, commandSheet, hasLoaded=False)
-    bot.run(DISCORD_TOKEN)
+# MAIN
+refreshCogs(bot, commandSheet, hasLoaded=False)
+bot.run(DISCORD_TOKEN)
