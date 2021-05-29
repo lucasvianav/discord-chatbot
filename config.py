@@ -9,6 +9,7 @@ load_dotenv()
 # Gets tokens and keys
 DISCORD_TOKEN = getenv('DISCORD_TOKEN')
 SPREADSHEET_KEY = getenv('SPREADSHEET_KEY')
+MONGODB_ATLAS_URI = getenv('MONGODB_ATLAS_URI')
 
 # Use creds to create a client to interact with the Google Drive API
 scope = [
@@ -36,3 +37,4 @@ def refreshSheet():
     isEmpty = True if len(triggerSheet) == 0 and len(commandSheet) == 0 else False
 
     return spreadsheet, commandSheet, triggerSheet, isEmpty
+
