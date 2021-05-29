@@ -57,10 +57,10 @@ def getImage(img: str):
             img = False
 
         else:
-            with open('./images/aux.png', 'wb') as f: f.write(r.content)
+            with open('aux.png', 'wb') as f: f.write(r.content)
             r.close()
 
-            img = './images/aux.png'
+            img = 'aux.png'
             print('   [**] The image was successfully downloaded.')
 
     else:
