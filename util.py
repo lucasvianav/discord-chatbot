@@ -160,7 +160,6 @@ def refreshCogs(bot, cogSheet: list, hasLoaded=True):
 
     # Loads all cogs
     for filename in os.listdir('./cogs'):
-        print(filename)
         if filename.endswith('.py') and (filename.replace('.py', '') not in FIXED_COGS or not hasLoaded):
             bot.load_extension(f'cogs.{filename.replace(".py","")}')
 
