@@ -10,7 +10,7 @@ MESSAGE_EMOJI = '🍉' # emoji that'll be mainly used to react to user messages
 RESPONSE_EMOJI = '🤠' # emoji that'll be used to react to all bot messages
 FIXED_COGS = [ # all cogs that aren't from the google sheet
     'Reuniões', 'OnMemberJoin', 'Decisions', 
-    'Counters', 'SuperMarselo', 'Utilities'
+    'Counters', 'Utilities'
 ]
 AVAILABLE_REACTIONS = [ # list of reactions that'll be used in poll-like commands
     '🤠', '🍉', '💘', '🏂',
