@@ -1,15 +1,20 @@
 from dotenv import load_dotenv
-from os import getenv
+import os
+import json
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 load_dotenv()
 
+#Generate json credentials to be used in Google Drive API
+with open("credentials.json" , "w") as f:
+        json.dump(os.environ["CREDENTIALS"] , f)
+
 # Gets tokens and keys
-DISCORD_TOKEN = getenv('DISCORD_TOKEN')
-SPREADSHEET_KEY = getenv('SPREADSHEET_KEY')
-MONGODB_ATLAS_URI = getenv('MONGODB_ATLAS_URI')
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+SPREADSHEET_KEY = os.getenv('SPREADSHEET_KEY')
+MONGODB_ATLAS_URI = os.getenv('MONGODB_ATLAS_URI')
 
 # Use creds to create a client to interact with the Google Drive API
 scope = [
