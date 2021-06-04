@@ -9,7 +9,7 @@ load_dotenv()
 
 #Generate json credentials to be used in Google Drive API
 with open("credentials.json" , "w") as f:
-        json.dump(os.environ["CREDENTIALS"] , f)
+    json.dump(json.loads(os.environ["CREDENTIALS"]) , f)
 
 # Gets tokens and keys
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
