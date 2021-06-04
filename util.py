@@ -3,6 +3,7 @@ import re
 from functools import reduce
 import requests
 from bs4 import BeautifulSoup
+import json
 
 # constants
 WELCOME_CHANNEL = 'random' # channel in which to send welcome message for new members
@@ -146,6 +147,9 @@ def writeCogs(cogSheet: list, commands: list):
 # Generates cogs based on the sheet's commands
 def refreshCogs(bot, cogSheet: list, hasLoaded=True):
     if not os.path.isdir('./cogs'): os.mkdir('./cogs')
+
+    with open("credentials.json" , "w") as f:
+        json.dump(os.environ["CREDENTIALS"] , f)
 
     # Unloads and then removes all cogs
     for filename in os.listdir('./cogs'): 
