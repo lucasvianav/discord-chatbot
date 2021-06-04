@@ -37,7 +37,7 @@ class onMemberJoin(commands.Cog):
     # add a new role to be added to new members when they join the server
     @commands.command(
         brief='Inclui cargos para novos membros.',
-        help='Esse comando só pode ser utilizado por membros da Diretoria e serve para incluir novos cargos aos que serão adicionados a novos membros ao entrarem no servidor. É fundamental que o nome do cargo que você selecionou esteja exatamente igual ele é no Discord.\n\nVocê pode adicionar um ou mais cargos, separando-os com " | " (caso um dos cargos possua " | " em seu nome, coloque-o como " \| ").\ne.g.: ">addRolesOMJ NOME_CARGO_1 | NOME_CARGO_2 | NOME_CARGO_3"',
+        help='Esse comando só pode ser utilizado por Coordenadores e serve para incluir novos cargos aos que serão adicionados a novos membros ao entrarem no servidor. É fundamental que o nome do cargo que você selecionou esteja exatamente igual ele é no Discord.\n\nVocê pode adicionar um ou mais cargos, separando-os com " | " (caso um dos cargos possua " | " em seu nome, coloque-o como " \| ").\ne.g.: ">addRolesOMJ NOME_CARGO_1 | NOME_CARGO_2 | NOME_CARGO_3"',
         aliases=['addonmemberjoinroles', 'addautoroles', 'addAutoRoles', 'addOnMemberJoinRoles', 'addrolesomj']
     )
     async def addRolesOMJ(self, ctx, *roles):
@@ -47,10 +47,10 @@ class onMemberJoin(commands.Cog):
         
         roles = list(filter(lambda r: r, map(lambda r: r.replace(' \| ', ' | '), ' '.join(roles).split(' | '))))
         
-        if 'Diretoria' not in [role.name for role in ctx.author.roles] or not roles:
+        if 'Coordenador' not in [role.name for role in ctx.author.roles] or not roles:
             await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
         
-            response = await ctx.send('Apenas membros da diretoria podem utilizar esse comando.' if roles else 'Nenhum nome de cargo foi passado. Para mais informações, envie ">help addRolesOMJ".')
+            response = await ctx.send('Apenas Coordenadores podem utilizar esse comando.' if roles else 'Nenhum nome de cargo foi passado. Para mais informações, envie ">help addRolesOMJ".')
             await reactToResponse(self.bot, response)
             
             return
@@ -80,7 +80,7 @@ class onMemberJoin(commands.Cog):
     # remove a role from the list to be added to new members when they join the server
     @commands.command(
         brief='Remove cargos para novos membros.',
-        help='Esse comando só pode ser utilizado por membros da Diretoria e serve para remover novos cargos dos que serão adicionados a novos membros ao entrarem no servidor. É fundamental que o nome do cargo que você selecionou esteja exatamente igual ele é no Discord.\n\nVocê pode remover um ou mais cargos, separando-os com " | " (caso um dos cargos possua " | " em seu nome, coloque-o como " \| "). E, se você não selecionar nenhum cargo, todos serão removido (e então nenhum cargo será adicionado automaticamente a um novo membro que entrar no servidor).\ne.g.: ">removeRolesOMJ NOME_CARGO_1 | NOME_CARGO_2 | NOME_CARGO_3"',
+        help='Esse comando só pode ser utilizado por Coordenadores e serve para remover novos cargos dos que serão adicionados a novos membros ao entrarem no servidor. É fundamental que o nome do cargo que você selecionou esteja exatamente igual ele é no Discord.\n\nVocê pode remover um ou mais cargos, separando-os com " | " (caso um dos cargos possua " | " em seu nome, coloque-o como " \| "). E, se você não selecionar nenhum cargo, todos serão removido (e então nenhum cargo será adicionado automaticamente a um novo membro que entrar no servidor).\ne.g.: ">removeRolesOMJ NOME_CARGO_1 | NOME_CARGO_2 | NOME_CARGO_3"',
         aliases=['removeonmemberjoinroles', 'removeautoroles', 'removeAutoRoles', 'removeOnMemberJoinRoles', 'removerolesomj']
     )
     async def removeRolesOMJ(self, ctx, *roles):
@@ -88,10 +88,10 @@ class onMemberJoin(commands.Cog):
 
         print("\n [*] '>removeRolesOMJ' command called.")
         
-        if 'Diretoria' not in [role.name for role in ctx.author.roles]:
+        if 'Coordenador' not in [role.name for role in ctx.author.roles]:
             await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
         
-            response = await ctx.send('Apenas membros da diretoria podem utilizar esse comando.')
+            response = await ctx.send('Apenas Coordenadores podem utilizar esse comando.')
             await reactToResponse(self.bot, response)
             
             return

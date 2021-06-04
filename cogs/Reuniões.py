@@ -65,7 +65,7 @@ class Reuniões(commands.Cog):
     # list of all of the server's meetings
     @commands.command(
         brief='Lista todas as reuniões marcadas.',
-        help=f'Esse comando lista todas as reuniões da SA-SEL que foram marcadas e adicionadas ao bot com o comando ">addMeeting".\n\nVocê pode listar as reuniões ordenadas por dias da semana ou por projetos (padrão). Para ordenar por dias da semana, utilize como argumento para o comando algum dentre a lista {ACCEPTABLE_TYPES["byDay"]} e, para ordenar por projeto, dentre a lista {ACCEPTABLE_TYPES["byProject"]}.\ne.g.: ">meetings day" vai listar as reuniões ordenada por dia e ">meetings project" vai listar as reuniões ordenadas por projetos.',
+        help=f'Esse comando lista todas as reuniões do Zenith que foram marcadas e adicionadas ao bot com o comando ">addMeeting".\n\nVocê pode listar as reuniões ordenadas por dias da semana ou por projetos (padrão). Para ordenar por dias da semana, utilize como argumento para o comando algum dentre a lista {ACCEPTABLE_TYPES["byDay"]} e, para ordenar por projeto, dentre a lista {ACCEPTABLE_TYPES["byProject"]}.\ne.g.: ">meetings day" vai listar as reuniões ordenada por dia e ">meetings project" vai listar as reuniões ordenadas por projetos.',
         aliases=['reuniões', 'reunião', 'meeting', 'listmeetings', 'listarreuniões', 'Meetings', 'Meeting']
     )
     async def meetings(self, ctx, type='project'):
@@ -93,7 +93,7 @@ class Reuniões(commands.Cog):
                         meetingsText += f'\n  • **{time[0]}**:'
                         for meeting in time[1]: meetingsText += f'\n    ‣ {meeting}'
                 
-        txt = f'`As reuniões marcadas (ordenadas por {"dia" if type in ACCEPTABLE_TYPES["byDay"] else "projeto"}) são:`' + meetingsText if meetingsText else 'Não há reuniões marcadas. Uau, que raro.'
+        txt = f'`As reuniões marcadas (ordenadas por {"dia" if type in ACCEPTABLE_TYPES["byDay"] else "projeto"}) são:`' + meetingsText if meetingsText else 'Não há reuniões marcadas.'
         txt += '\n\nNão se esqueça, você pode marcar ou desmarcar uma reunião com os comandos `>addMeeting` e `>removeMeeting`, respectivamente.' if meetingsText else ''
 
         response = await ctx.send(txt)
@@ -105,7 +105,7 @@ class Reuniões(commands.Cog):
     # schedule a new meeting
     @commands.command(
         brief='Adiciona uma nova reunião.',
-        help='Formato: $NOME_DO_PROJETO_OU_REUNIÃO | $DIA_DA_REUNIÃO | $HORÁRIO_DA_REUNIÃO\ne.g.: ">addMeeting Moletons da Elétrica | Terça-Feira | 18h00"',
+        help='Formato: $NOME_DO_PROJETO_OU_REUNIÃO | $DIA_DA_REUNIÃO | $HORÁRIO_DA_REUNIÃO\ne.g.: ">addMeeting Reunião Embarcados | Quarta-Feira | 18h15"',
         aliases=['addreunião', 'adicionarreunião', 'addmeeting', 'addReunião', 'adicionarReunião', 'adicionaReunião']
     )
     async def addMeeting(self, ctx, *info):
@@ -179,7 +179,7 @@ class Reuniões(commands.Cog):
     # unschedule a new meeting
     @commands.command(
         brief='Remove uma reunião.',
-        help='Formato: $NOME_DO_PROJETO_OU_REUNIÃO | $DIA_DA_REUNIÃO | $HORÁRIO_DA_REUNIÃO\ne.g.: ">removeMeeting Moletons da Elétrica | Terça-Feira | 18h00" vai remover a reunião da terça às 18h dos Moletons.\n\nTambém é possível remover todos os horários/reuniões de um projeto, se apenas o nome desse for informado.\ne.g.: ">removeMeeting Moletons da Elétrica" vai remover todas as reuniões do projeto dos Moletons.',
+        help='Formato: $NOME_DO_PROJETO_OU_REUNIÃO | $DIA_DA_REUNIÃO | $HORÁRIO_DA_REUNIÃO\ne.g.: ">removeMeeting Reunião Embarcados | Quarta-Feira | 18h15" vai remover a reunião da quarta às 18h15 dos Embarcados.\n\nTambém é possível remover todos os horários/reuniões de um projeto, se apenas o nome desse for informado.\ne.g.: ">removeMeeting Reunião Embarcados" vai remover todas as reuniões dos projetos dos Embarcados.',
         aliases=['removemeeting', 'removerreunião', 'removerReunião', 'removeReunião']
     )
     async def removeMeeting(self, ctx, *info):
@@ -314,7 +314,7 @@ class Reuniões(commands.Cog):
     # list of all of a role's members' meetings
     @commands.command(
         brief='Fala quais horários os membros de um cargo estão ocupados.',
-        help='O comando recebe como argumento o nome de um cargo (exatamente igual está no discord) e vai te avisar em quais horários os membros que possuem aquele cargo estão ocupados (com reuniões da SA-SEL marcadas).\n\nEx: ">busy Moletons da Elétrica".',
+        help='O comando recebe como argumento o nome de um cargo (exatamente igual está no discord) e vai te avisar em quais horários os membros que possuem aquele cargo estão ocupados (com reuniões do Zenith marcadas).\n\nEx: ">busy Reunião Embarcados".',
         aliases=[]
     )
     async def busy(self, ctx, *roleName):

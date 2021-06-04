@@ -15,7 +15,7 @@ class Utilities(commands.Cog):
     @commands.command(
         aliases=['openProjects', 'openproject', 'openprojects', 'createProject', 'createProjects', 'createRole', 'createRoles', 'abrirProjeto', 'createrole', 'createroles', 'abrirprojeto', 'abrirProjetos', 'criarProjeto', 'criarprojeto', 'criarprojetos', 'criarProjetos', 'criarCargo', 'criarCargos', 'criarcargo', 'criarcargos'],
         brief='Auxilia na abertura de um projeto.', 
-        help='O self.bot vai enviar uma mensagem convidando os membros a adicionarem reações para entrarem no projeto. Ele vai esperar 20 minutos e depois vai criar um cargo para o projeto e adicioná-lo a todos que reagiram.\n\nÉ possível abrir no mínimo 1 e no máximo 9 projetos por vez, separando-os por " | ".\ne.g.: ">openProjects Moletons da Elétrica | Kit Bixo | RPG da SA-SEL"\n\nExiste também um parâmetro/argumento opcional que pode ser passado para o comando: se você quiser que eu marque algum cargo, basta adicionar o parâmetro "$mention=" seguido do nome do cargo a ser marcado. O nome do cargo a ser marcado deve estar exatamente igual ao nome do cargo no Discord e esse parâmetro deve ser enviado na primeira ou na última posição da lista de projetos.\nO parâmetro é opcional e, se não for fornecido (ou se o cargo fornecido não for encontrado), nenhum cargo será marcado.\nPor exemplo, se você incluir "$mention=everyone", eu vou marcar @everyone; se você incluir "$mention=Moletons da Elétrica" ou "$mention=Moletons", eu vou marcar "@Moletons da Elétrica" ou "@Moletons", respectivamente.\ne.g.: ">openProjects Moletons da Elétrica | Kit Bixo | RPG da SA-SEL | $mention=everyone", ">openProjects $mention=everyone | Moletons da Elétrica | Kit Bixo | RPG da SA-SEL"\n\nVale ressaltar que apenas membros da Diretoria podem abrir projetos.'
+        help='O self.bot vai enviar uma mensagem convidando os membros a adicionarem reações para entrarem no projeto. Ele vai esperar 20 minutos e depois vai criar um cargo para o projeto e adicioná-lo a todos que reagiram.\n\nÉ possível abrir no mínimo 1 e no máximo 9 projetos por vez, separando-os por " | ".\ne.g.: ">openProjects Garatéa-V | Kurumin | Linux Embarcado"\n\nExiste também um parâmetro/argumento opcional que pode ser passado para o comando: se você quiser que eu marque algum cargo, basta adicionar o parâmetro "$mention=" seguido do nome do cargo a ser marcado. O nome do cargo a ser marcado deve estar exatamente igual ao nome do cargo no Discord e esse parâmetro deve ser enviado na primeira ou na última posição da lista de projetos.\nO parâmetro é opcional e, se não for fornecido (ou se o cargo fornecido não for encontrado), nenhum cargo será marcado.\nPor exemplo, se você incluir "$mention=everyone", eu vou marcar @everyone; se você incluir "$mention=Alto Nível", eu vou marcar "@Alto Nível", respectivamente.\ne.g.: ">openProjects Garatéa-V | Kurumin | Linux Embarcado | $mention=everyone", ">openProjects $mention=everyone | Garatéa-V | Kurumin | Linux Embarcado"\n\nVale ressaltar que apenas Coordenadores podem abrir projetos.'
     )
     async def openProject(self, ctx, *projects):
         await ctx.trigger_typing()
@@ -36,10 +36,10 @@ class Utilities(commands.Cog):
         
         print(f"   [**] The passed projects are: {''.join(projects)}.")
 
-        if 'Diretoria' not in [role.name for role in ctx.author.roles] or len(projects) > len(AVAILABLE_REACTIONS) or len(projects) == 0:
+        if 'Coordenador' not in [role.name for role in ctx.author.roles] or len(projects) > len(AVAILABLE_REACTIONS) or len(projects) == 0:
             await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
         
-            response = await ctx.send(('Apenas membros da diretoria podem abrir um projeto/criar um cargo.' if 'Diretoria' not in [role.name for role in ctx.author.roles] else f'É possível abrir no mínimo 1 e no máximo {len(AVAILABLE_REACTIONS)} projetos ao mesmo tempo.') + '\nEnvie `>help openProject` para mais informações.')
+            response = await ctx.send(('Apenas Coordenadores podem abrir um projeto/criar um cargo.' if 'Coordenador' not in [role.name for role in ctx.author.roles] else f'É possível abrir no mínimo 1 e no máximo {len(AVAILABLE_REACTIONS)} projetos ao mesmo tempo.') + '\nEnvie `>help openProject` para mais informações.')
             await reactToResponse(self.bot, response)
             
             return
@@ -158,7 +158,7 @@ class Utilities(commands.Cog):
 
                 for member in reactors: await member.add_roles(roles[reaction.emoji])
 
-        await cached.edit(content=f'{projects_str}\n\n**Não estou mais monitorando essa mensagem, portanto não adianta mais reagir!** Se quiser participar de um dos projetos, entre em contato com o(a) gerente ou diretor(a) responsável.')
+        await cached.edit(content=f'{projects_str}\n\n**Não estou mais monitorando essa mensagem, portanto não adianta mais reagir!** Se quiser participar de um dos projetos, entre em contato com o coordenador responsável.')
 
         await ctx.send('`[PROJETOS ABERTOS]`')
         for reaction in cached.reactions:
@@ -235,10 +235,10 @@ class Utilities(commands.Cog):
 
         print('\n [*] \'>kick\' command called.')
 
-        if 'Diretoria' not in [role.name for role in ctx.author.roles]:
+        if 'Coordenador' not in [role.name for role in ctx.author.roles]:
             await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
 
-            response = await ctx.reply(f'Apenas membros da diretoria podem utilizar esse comando. Por que você quer kickar os amiguinhos, {ctx.author.mention}? :c')
+            response = await ctx.reply(f'Apenas Coordenadores podem utilizar esse comando. Por que você quer kickar os amiguinhos, {ctx.author.mention}? :c')
             await reactToResponse(self.bot, response)
 
             return
@@ -307,7 +307,7 @@ class Utilities(commands.Cog):
     # list all members that have a role
     @commands.command(
         brief='Lista todos os membros de um cargo.',
-        help='Sintaxe: ">members $CARGO"\n\n$CARGO pode ser tanto o nome do cargo (exatamente como está escrito no Discord), quanto a mention. Eu irei retornar a lista de todos os membros que possuem aquele cargo - o "apelido" no servidor e o nome de usuário entre parênteses.\nPor exemplo: ">members Kit Bixo", ou ">members @Kit Bixo"\n\nOBS: Se você quiser que eu retorne a mention dos membros, inclua "$mention" no comando. Por exemplo: ">members Kit Bixo $mention".',
+        help='Sintaxe: ">members $CARGO"\n\n$CARGO pode ser tanto o nome do cargo (exatamente como está escrito no Discord), quanto a mention. Eu irei retornar a lista de todos os membros que possuem aquele cargo - o "apelido" no servidor e o nome de usuário entre parênteses.\nPor exemplo: ">members Embarcados", ou ">members @Embarcados"\n\nOBS: Se você quiser que eu retorne a mention dos membros, inclua "$mention" no comando. Por exemplo: ">members Embarcados $mention".',
         aliases=['membros', 'whosIn', 'whosin', 'rusin']
     )
     async def members(self, ctx, *argv):
