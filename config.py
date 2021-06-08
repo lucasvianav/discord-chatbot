@@ -15,6 +15,7 @@ with open("credentials.json" , "w") as f:
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 SPREADSHEET_KEY = os.getenv('SPREADSHEET_KEY')
 MONGODB_ATLAS_URI = os.getenv('MONGODB_ATLAS_URI')
+CHANNEL_ID = os.getenv('CHANNEL_ID')
 
 # Use creds to create a client to interact with the Google Drive API
 scope = [

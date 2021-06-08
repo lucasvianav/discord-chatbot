@@ -9,8 +9,8 @@ WELCOME_CHANNEL = 'random' # channel in which to send welcome message for new me
 MESSAGE_EMOJI = '🍉' # emoji that'll be mainly used to react to user messages
 RESPONSE_EMOJI = '🤠' # emoji that'll be used to react to all bot messages
 FIXED_COGS = [ # all cogs that aren't from the google sheet
-    'Reuniões', 'OnMemberJoin', 'Decisions', 
-    'Counters', 'Utilities'
+    'Reuniões', 'OnMemberJoin', 'Decisions',
+    'Counters', 'Utilities', 'Birthday'
 ]
 AVAILABLE_REACTIONS = [ # list of reactions that'll be used in poll-like commands
     '🤠', '🍉', '💘', '🏂',
@@ -74,7 +74,7 @@ def writeCogs(cogSheet: list, commands: list):
     i = 0
     while i < len(cogSheet):
         auxCog = (cogSheet[i]["COMMAND CATEGORY"]).replace(' ', '_')
-        
+
         if not auxCog:
             i += 1
             continue
@@ -90,10 +90,10 @@ def writeCogs(cogSheet: list, commands: list):
         cog.write(f"class {auxCog.title()}(commands.Cog):\n")
         cog.write("    def __init__(self, bot):\n")
         cog.write("        self.bot = bot\n\n")
-        
+
         while i < len(cogSheet) and cogSheet[i]["COMMAND CATEGORY"] == auxCog.replace('_', ' '):
             element = dict(cogSheet[i])
-            
+
             isNameInvalid = (not element["COMMAND NAME"]) or bool(re.search('^\d', element["COMMAND NAME"])) or bool(re.search('[^a-zA-Z\dáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]', element["COMMAND NAME"]))
 
             if not (element["COMMAND NAME"] in commands or isNameInvalid):
@@ -101,11 +101,11 @@ def writeCogs(cogSheet: list, commands: list):
                 if aliases:
                     # makes sure that each alias is unique
                     aliases = reduce(lambda acc, cur: acc + ([cur] if cur not in acc else []), aliases, [])
-                    
+
                     if (("'" + element["COMMAND NAME"] + "'") in aliases): aliases.remove("'" + element["COMMAND NAME"] + "'")
                     if "''" in aliases: aliases.remove("''")
                     if "' '" in aliases: aliases.remove("' '")
-                    
+
                 tts = 'True' if element['TTS'] == 'TRUE' else 'False'
                 reply = True if element['REPLY'] == 'TRUE' else False
 
@@ -132,7 +132,7 @@ def writeCogs(cogSheet: list, commands: list):
                 cog.write("        print('   [**] The response was successfully sent.')\n\n")
 
                 cog.write("        await reactToResponse(self.bot, response)\n\n")
-                
+
                 commands.append(element["COMMAND NAME"])
                 if aliases: commands.append(aliases)
 
@@ -148,7 +148,7 @@ def refreshCogs(bot, cogSheet: list, hasLoaded=True):
     if not os.path.isdir('./cogs'): os.mkdir('./cogs')
 
     # Unloads and then removes all cogs
-    for filename in os.listdir('./cogs'): 
+    for filename in os.listdir('./cogs'):
         if filename.endswith('.py') and filename.replace('.py', '') not in FIXED_COGS:
             if hasLoaded: bot.unload_extension(f'cogs.{filename.replace(".py","")}')
             os.remove(f'./cogs/{filename}')
