@@ -319,16 +319,14 @@ class Reuniões(commands.Cog):
 
     @tasks.loop(minutes=1)
     async def remind(self):
-        weekday = datetime.today().weekday()
-        weekName = WEEKDAYS [weekday]
-
         timeZone = pytz.timezone('Etc/GMT+1')
-
         realTimeZone = pytz.timezone('Etc/GMT+3')
+
+        weekday = datetime.now(timeZone).strftime('%w')
+        weekName = WEEKDAYS[int(weekday)]
 
         now = datetime.now(timeZone).strftime('%Hh%M')
         meetingTime = datetime.now(realTimeZone).strftime('%Hh%M')
-        print(f"{now} {meetingTime}\n")
 
         try:
             reminder = self.meetings['byDay'][weekName][now].items()
