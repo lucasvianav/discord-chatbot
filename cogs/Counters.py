@@ -20,7 +20,7 @@ class Counters(commands.Cog):
         channel = ctx.channel
 
         print(f'\n [*] \'>júlio\' command called.')
-
+   
         await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
 
         # increments that counter and saves it to the db
@@ -44,7 +44,7 @@ class Counters(commands.Cog):
         self.counters['bap'] += 1
         self.db.find_one_and_update({"description": "counters"}, {"$set": {"counters": self.counters}})
 
-        response = await ctx.send(f'**Leonardo ||Baptistella||, foi preso `{self.counters["bap"]}` vezes.')
+        response = await ctx.send(f'*Leonardo* ||Baptistella||, foi preso `{self.counters["bap"]}` vezes.')
 
         await reactToResponse(self.bot, response, ['❤️'])    
 
