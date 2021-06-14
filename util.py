@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 # constants
 WELCOME_CHANNEL = 'random' # channel in which to send welcome message for new members
 MESSAGE_EMOJI = '🐴' # emoji that'll be mainly used to react to user messages
-RESPONSE_EMOJI = '🛻' # emoji that'll be used to react to all bot messages
+RESPONSE_EMOJI = '🚚' # emoji that'll be used to react to all bot messages
 FIXED_COGS = [ # all cogs that aren't from the google sheet
     'Reuniões', 'OnMemberJoin', 'Decisions',
     'Counters', 'Utilities', 'Birthday'
