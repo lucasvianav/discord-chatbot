@@ -330,13 +330,15 @@ class Reuniões(commands.Cog):
 
         meetingTime = datetime.now(realTimeZone).strftime('%Hh%M')
 
-        reminder = self.meetings['byDay'][weekName][now].items()
+        try:
+            reminder = self.meetings['byDay'][weekName][now].items()
 
-
-        if(reminder):
-            channel = await self.bot.fetch_channel(CHANNEL_ID)
-            response = await channel.send(content = f'**Reunião HOJE do {reminder[0]} às {meetingTime}**')
-            await reactToResponse (self.bot,response,['🚀'])
+            if (reminder):
+                channel = await self.bot.fetch_channel(CHANNEL_ID)
+                response = await channel.send(content = f'**Reunião HOJE do {reminder[0]} às {meetingTime}**')
+                await reactToResponse (self.bot,response,['🚀'])
+        except:
+            pass
 
 
     # list of all of a role's members' meetings
