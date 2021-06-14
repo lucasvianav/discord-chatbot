@@ -15,7 +15,7 @@ ACCEPTABLE_TYPES = {
 }
 
 WEEKDAYS = ['Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado', 'Domingo']
-CHANNEL_ID = 841823382977904690
+CHANNEL_ID = 852293610669342759
 
 formatWeekdays = {
     "segunda": "Segunda-Feira",
@@ -327,13 +327,16 @@ class Reuniões(commands.Cog):
         realTimeZone = pytz.timezone('Etc/GMT+3')
 
         now = datetime.now(timeZone).strftime('%Hh%M')
-
         meetingTime = datetime.now(realTimeZone).strftime('%Hh%M')
+        print(f"{now} {meetingTime}\n")
 
         try:
             reminder = self.meetings['byDay'][weekName][now].items()
+            print(reminder)
+            print('\n')
 
             if (reminder):
+                print(f"{now} {meetingTime}\n")
                 channel = await self.bot.fetch_channel(CHANNEL_ID)
                 response = await channel.send(content = f'**Reunião HOJE do {reminder[0]} às {meetingTime}**')
                 await reactToResponse (self.bot,response,['🚀'])
