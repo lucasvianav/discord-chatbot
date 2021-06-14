@@ -324,9 +324,12 @@ class Reuniões(commands.Cog):
 
         weekday = datetime.now(timeZone).strftime('%w')
         weekName = WEEKDAYS[int(weekday)]
+        print(weekName)
+        print('\n')
 
         now = datetime.now(timeZone).strftime('%Hh%M')
         meetingTime = datetime.now(realTimeZone).strftime('%Hh%M')
+        print(f"{now} {meetingTime}\n")
 
         try:
             reminder = self.meetings['byDay'][weekName][now].items()
