@@ -14,7 +14,7 @@ ACCEPTABLE_TYPES = {
     "byDay": ['day', 'dia', 'dias', 'semana', 'horários']
 }
 
-WEEKDAYS = ['Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado', 'Domingo']
+WEEKDAYS = ['Domingo', 'Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado']
 CHANNEL_ID = 852293610669342759
 
 formatWeekdays = {
