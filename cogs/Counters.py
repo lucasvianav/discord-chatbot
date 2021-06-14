@@ -46,7 +46,7 @@ class Counters(commands.Cog):
 
         response = await ctx.send(f'*Leonardo* ||Baptistella||, foi preso `{self.counters["bap"]}` vezes.')
 
-        await reactToResponse(self.bot, response, ['\:man_judge:'])    
+        await reactToResponse(self.bot, response, ['🔒'])    
 
 def setup(bot):
     bot.add_cog(Counters(bot))
