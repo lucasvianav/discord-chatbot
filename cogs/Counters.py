@@ -37,15 +37,15 @@ class Counters(commands.Cog):
     async def bap(self, ctx):
         await ctx.trigger_typing()
 
-        print(f'\n [*] \'>julio\' command called.')
+        print(f'\n [*] \'>bap\' command called.')
 
         await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
 
         # increments that counter and saves it to the db
-        self.counters['julio'] += 1
+        self.counters['bap'] += 1
         self.db.find_one_and_update({"description": "counters"}, {"$set": {"counters": self.counters}})
 
-        response = await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["julio"]}` vezes.')
+        response = await ctx.send(f'**Leonardo ||Baptistella||, foi preso `{self.counters["bap"]}` vezes.')
 
         await reactToResponse(self.bot, response, ['❤️'])    
 
