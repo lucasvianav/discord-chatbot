@@ -27,7 +27,6 @@ class Counters(commands.Cog):
         self.counters['júlio'] += 1
         self.db.find_one_and_update({"description": "counters"}, {"$set": {"counters": self.counters}})
 
-        await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["júlio"]}` vezes.')
         response = await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["júlio"]}` vezes.')
 
         await reactToResponse(self.bot, response, ['❤️'])
