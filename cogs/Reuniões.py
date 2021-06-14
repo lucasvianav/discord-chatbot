@@ -3,9 +3,11 @@ from re import search, sub
 import discord
 import pymongo
 from config import MONGODB_ATLAS_URI
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
 from util import *
+from datetime import datetime
+import pytz
 
 ACCEPTABLE_TYPES = {
     "byProject": [ 'project', 'projects', 'projetos', 'projeto', 'reunião', 'reuniões'], 
@@ -13,6 +15,7 @@ ACCEPTABLE_TYPES = {
 }
 
 WEEKDAYS = ['Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado', 'Domingo']
+CHANNEL_ID = 841823382977904690
 
 formatWeekdays = {
     "segunda": "Segunda-Feira",
@@ -61,6 +64,7 @@ class Reuniões(commands.Cog):
         self.db = self.client['discord-bot']['discord-bot']
         
         self.meetings = sortedMeetings(self.db.find_one({"description": "reuniões"})['meetings'])
+        self.remind.start()
 
     # list of all of the server's meetings
     @commands.command(
@@ -310,6 +314,30 @@ class Reuniões(commands.Cog):
         print('   [**] The response was successfully sent.')
 
         await reactToResponse(self.bot, response)
+    
+    # remider
+
+    @tasks.loop(minutes=1)
+    async def remind(self):
+        weekday = datetime.today().weekday() 
+        weekName = WEEKDAYS [weekday]
+        
+        timeZone = pytz.timezone('Etc/GMT+1')   
+
+        realTimeZone = pytz.timezone('Etc/GMT+3')
+
+        now = datetime.now(timeZone).strftime('%H:%M')
+
+        meetingTime = datetime.now(realTimeZone).strftime('%H:%M')
+
+        reminder = self.meetings['byDay'][weekName][now].items()
+
+
+        if(reminder):
+            channel = await self.bot.fetch_channel(CHANNEL_ID)
+            response = await channel.send(content = f'**Reunião HOJE do {reminder[0]} às {meetingTime}**')
+            await reactToResponse (self.bot,response,['🚀'])
+
 
     # list of all of a role's members' meetings
     @commands.command(
