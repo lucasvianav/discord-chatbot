@@ -15,20 +15,39 @@ class Counters(commands.Cog):
 
     # example of a command that uses a counter that increses each time it is called
     @commands.command(brief='', help='', aliases=[])
-    async def júlio(self, ctx):
+    async def julio(self, ctx):
         await ctx.trigger_typing()
+        channel = ctx.channel
 
-        print(f'\n [*] \'>júlio\' command called.')
+        print(f'\n [*] \'>julio\' command called.')
 
         await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
 
         # increments that counter and saves it to the db
-        self.counters['júlio'] += 1
+        self.counters['julio'] += 1
         self.db.find_one_and_update({"description": "counters"}, {"$set": {"counters": self.counters}})
 
-        response = await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["júlio"]}` vezes.')
+        await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["julio"]}` vezes.')
+        response = await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["julio"]}` vezes.')
 
         await reactToResponse(self.bot, response, ['❤️'])
+
+        # example of a command that uses a counter that increses each time it is called
+    @commands.command(brief='', help='', aliases=[])
+    async def bap(self, ctx):
+        await ctx.trigger_typing()
+
+        print(f'\n [*] \'>julio\' command called.')
+
+        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
+
+        # increments that counter and saves it to the db
+        self.counters['julio'] += 1
+        self.db.find_one_and_update({"description": "counters"}, {"$set": {"counters": self.counters}})
+
+        response = await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["julio"]}` vezes.')
+
+        await reactToResponse(self.bot, response, ['❤️'])    
 
 def setup(bot):
     bot.add_cog(Counters(bot))
