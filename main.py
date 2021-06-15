@@ -71,7 +71,7 @@ async def on_message(message):
 
     # Checks for all triggers listed in the spreadsheet
     for element in triggerSheet:
-        if message.content and message.content.lower() in filter(lambda e: e, element["TRIGGER"].split('\n')):
+        if message.content and message.content.lower() in filter(lambda e: e, str(element["TRIGGER"]).split('\n')):
             print(f"\n [*] Trigger: '{message.content}', by {message.author.display_name}.")
 
             await reactToMessage(bot, message, [MESSAGE_EMOJI])
