@@ -332,16 +332,18 @@ class Reuniões(commands.Cog):
         try:
             reminder = self.meetings['byDay'][weekName][now].items()
 
-        reminder = self.meetings['byDay'][weekName][meetingTime].items()
-        print(reminder)
-        print('\n')
+            reminder = self.meetings['byDay'][weekName][meetingTime].items()
+            print(reminder)
+            print('\n')
 
-        if (reminder):
-            print(f"{meetingTime} {now}\n")
-            channel = await self.bot.fetch_channel(CHANNEL_ID)
+            if (reminder):
+                print(f"{meetingTime} {now}\n")
+                channel = await self.bot.fetch_channel(CHANNEL_ID)
 
-            response = await channel.send(content = f'**>members {reminder[0]} $mention Reunião HOJE do {reminder[0]} às {now}**')
-            await reactToResponse (self.bot,response,['🚀'])
+                response = await channel.send(content = f'**>members {reminder[0]} $mention Reunião HOJE do {reminder[0]} às {now}**')
+                await reactToResponse (self.bot,response,['🚀'])
+        except:
+            pass
 
 
 
