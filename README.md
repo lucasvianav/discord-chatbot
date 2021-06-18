@@ -5,6 +5,24 @@ The spreadsheet must have two worksheets named "triggers" and "commands", respec
 
 The code is kinda chaotic and not too well commented. Sorry.
 
+## Environment and tools
+
+- [Google Sheets](https://www.google.com/sheets/about/): worksheets "commands" and "triggers" (recommended to create "manual").
+- [Python](https://www.python.org/):
+- [Dicord/Developers](https://discord.com/developers/applications):
+- [MongoDB](https://www.mongodb.com/):
+- [Heroku](https://www.heroku.com/):
+
+<!-- ## Steps to run and debug
+
+`A simple list of steps indicating how one can run and test the project.`
+
+## How to contribute
+
+`(optional, depends on the project) list of simple rules to help people work on the project.`
+
+`Examples: How to format a pull request\n How to format an issue` -->
+
 ## Config
 
 You must provide your own Google Sheets API's `credentials.json` and `.env`.
