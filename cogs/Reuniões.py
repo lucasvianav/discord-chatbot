@@ -329,9 +329,6 @@ class Reuniões(commands.Cog):
         now = datetime.now(realTimeZone).strftime('%Hh%M')
         print(f"{meetingTime} {now}\n")
 
-        
-        reminder = self.meetings['byDay'][weekName][now].items()
-
         reminder = self.meetings['byDay'][weekName][meetingTime].items()
         print(reminder)
         print('\n')
