@@ -15,7 +15,7 @@ ACCEPTABLE_TYPES = {
 }
 
 WEEKDAYS = ['Domingo', 'Segunda-Feira', 'Terça-Feira', 'Quarta-Feira', 'Quinta-Feira', 'Sexta-Feira', 'Sábado']
-CHANNEL_ID = 852293610669342759
+CHANNEL_ID = 838760077536133170
 
 formatWeekdays = {
     "segunda": "Segunda-Feira",
@@ -316,32 +316,26 @@ class Reuniões(commands.Cog):
         await reactToResponse(self.bot, response)
 
     # remider
-
-    @tasks.loop(minutes=1)
+    @tasks.loop(minutes = 1)
     async def remind(self):
         timeZone = pytz.timezone('Etc/GMT+1')
-        realTimeZone = pytz.timezone('Etc/GMT+3')
 
         weekday = datetime.now(timeZone).strftime('%w')
         weekName = WEEKDAYS[int(weekday)]
 
         meetingTime = datetime.now(timeZone).strftime('%Hh%M')
-        now = datetime.now(realTimeZone).strftime('%Hh%M')
-        print(f"{meetingTime} {now}\n")
 
-        reminder = self.meetings['byDay'][weekName][meetingTime].items()
-        print(reminder)
-        print('\n')
-
-        if (reminder):
-            print(f"{meetingTime} {now}\n")
+        try:
+            reminder = self.meetings['byDay'][weekName][meetingTime]
             channel = await self.bot.fetch_channel(CHANNEL_ID)
 
-            response = await channel.send(content = f'**>members {reminder[0]} $mention Reunião HOJE do {reminder[0]} às {now}**')
+            role = get(channel.guild.roles, name=reminder[0])
+            if not role: role = get(channel.guild.roles, mention=reminder[0])
+
+            response = await channel.send(content = f'Só passando para lembrar da reunião **HOJE** do {role.mention} às **{meetingTime}**.')
             await reactToResponse (self.bot,response,['🚀'])
-        
-
-
+        except:
+            pass
 
     # list of all of a role's members' meetings
     @commands.command(
