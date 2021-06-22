@@ -1,94 +1,80 @@
-# Discord Chatbot
+<h1 align="center" style="color:white; background-color:black">ChatBot - Cavalo Caminhão</h1>
+<h4 align="center">A bot that interacts in the chat, performs counts and makes meeting reminders for the Discord platform</h4>
 
-Simple bot that'll reply to commands (prefix '>') and on_message() triggers specified in a Google Sheets.
-The spreadsheet must have two worksheets named "triggers" and "commands", respectively. 
+<p align="center">
+	<a href="http://zenith.eesc.usp.br/">
+    <img src="https://img.shields.io/badge/Zenith-Embarcados-black?style=for-the-badge"/>
+    </a>
+    <a href="https://eesc.usp.br/">
+    <img src="https://img.shields.io/badge/Linked%20to-EESC--USP-black?style=for-the-badge"/>
+    </a>
+    <a href="https://github.com/zenitheesc/ZenView/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/zenitheesc/ZenView?style=for-the-badge"/>
+    </a>
+    <a href="https://github.com/zenitheesc/ZenView/issues">
+    <img src="https://img.shields.io/github/issues/zenitheesc/ZenView?style=for-the-badge"/>
+    </a>
+    <a href="https://github.com/zenitheesc/ZenView/commits/main">
+    <img src="https://img.shields.io/github/commit-activity/m/zenitheesc/ZenView?style=for-the-badge">
+    </a>
+    <a href="https://github.com/zenitheesc/ZenView/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/zenitheesc/ZenView?style=for-the-badge"/>
+    </a>
+    <a href="https://github.com/zenitheesc/ZenView/commits/main">
+    <img src="https://img.shields.io/github/last-commit/zenitheesc/ZenView?style=for-the-badge"/>
+    </a>
+    <a href="https://github.com/zenitheesc/ZenView/issues">
+    <img src="https://img.shields.io/github/issues-raw/zenitheesc/ZenView?style=for-the-badge" />
+    </a>
+    <a href="https://github.com/zenitheesc/ZenView/pulls">
+    <img src = "https://img.shields.io/github/issues-pr-raw/zenitheesc/ZenView?style=for-the-badge">
+    </a>
 
-The code is kinda chaotic and not too well commented. Sorry.
+</p>
+
+<p align="center">
+    <a href="#environment-and-tools">Environment and Tools</a> •
+    <a href="#steps-to-run-and-debug">Steps to run and debug</a> •
+    <a href="#how-to-contribute">How to contribute?</a> •
+</p>
 
 ## Environment and tools
 
 - [Google Sheets](https://www.google.com/sheets/about/): worksheets "commands" and "triggers" (recommended to create "manual").
 - [Python](https://www.python.org/):
-- [Dicord/Developers](https://discord.com/developers/applications):
+- [Dicord/DeveloperPortal](https://discord.com/developers/applications):
 - [MongoDB](https://www.mongodb.com/):
 - [Heroku](https://www.heroku.com/):
 
-<!-- ## Steps to run and debug
+## Steps to run and debug
 
-`A simple list of steps indicating how one can run and test the project.`
+It's necessary to create a project on Heroku cloud server and import the repository there; to create a database on MongoDB (recommended Atlas) with the desired collections, name your cluster, databases and collection as `discord-bot`; to make spreadsheet with the commands and other with triggers; and start a new application on the [Discord](https://discord.com/developers/applications) to generate your bot.
+
+You need these `.env` files to connect all plataforms to run this bot project: a new application token on the Discord Developer Portal; your Google’s API `credentials.env` and `.json` (help in this [video](https://www.youtube.com/watch?v=cnPlKLEGR7E) ); the MongoDB database URI. Replace them properly in the code.
+
+The bot`ll reply to commands with prefixe ‘>’ and triggers on_message ( ) specified in a Google Sheets (you have to create ‘commands’ and ‘triggers’ worksheets’).
+
 
 ## How to contribute
 
-`(optional, depends on the project) list of simple rules to help people work on the project.`
+If you want to collaborate with the project, make a **Fork** and a descriptive **Pull Request** explain your moddifications.
 
-`Examples: How to format a pull request\n How to format an issue` -->
+Please, contact us if you find problems or have a suggestion to the project. We will be grateful for your help.
 
-## Config
+---
 
-You must provide your own Google Sheets API's `credentials.json` and `.env`.
+<p align="center">
+    <a href="http://zenith.eesc.usp.br">
+    <img src="https://img.shields.io/badge/Check%20out-Zenith's Oficial Website-black?style=for-the-badge" />
+    </a> 
+    <a href="https://www.facebook.com/zenitheesc">
+    <img src="https://img.shields.io/badge/Like%20us%20on-facebook-blue?style=for-the-badge"/>
+    </a> 
+    <a href="https://www.instagram.com/zenith_eesc/">
+    <img src="https://img.shields.io/badge/Follow%20us%20on-Instagram-red?style=for-the-badge"/>
+    </a>
 
-If you don't know how to get Google's API credentials, I recommend [this video](https://www.youtube.com/watch?v=cnPlKLEGR7E).
-
-The `.env` file should be as follows:
-```
-DISCORD_TOKEN = 
-SPREADSHEET_KEY = 
-MONGODB_ATLAS_URI = 
-```
-
-### DISCORD_TOKEN
-You must create a discord application in https://discord.com/developers/applications/ and a bot inside it. The token needed is the bot's one, that can be found in https://discord.com/developers/applications/`<APPLICATION ID\>`/bot - as can be seen in the image below.
-
-![Where to get the DISCORD_TOKEN](screenshots/discord-token-example.png "Where to get the DISCORD_TOKEN")
-
-### SPREADSHEET_KEY
-Get it from the spreadsheet's link: https://docs.google.com/spreadsheets/d/<SPREADSHEET_KEY>. You must share the spreadsheet with your bot's email (from the Google Sheets API, it should be specified in your `credentials.json`).
-
-### MONGODB_ATLAS_URI
-Some commands I implemented - like the ones to track meetings and that use counters - depend on a database, for which I used MongoDB, specifically Mongo Atlas. For it to work right away, you just need to create a cluster of your own, put the connection URI in the `.env` and create in it a cluter, a database and a collection, all of them named `discord-bot`.
-
-Inside the database, create three objects as in the images below - `byProject` and `byDay` being empty objects, `roles` being an empty array, and counters being an object in which the keys are the names of the commands in the Counters.py cog and the values are any int number.
-
-![Mongo Atlas Database Organization](screenshots/mongo-example.png "Mongo Atlas Database Organization")
-
-## Google Sheet
-The spreadsheet must have a sheet named `commands` and a sheet named `triggers` with the specifications below.
-
-### Commands' worksheet
-It must have the following columns:
- - "COMMAND CATEGORY"
-   - All commands of a same category must be adjacent, otherwise only the last "block" will be used.
- - "COMMAND NAME"
-   - Can't contain special characters nor whitespace.
- - "COMMAND ALIASES"
-   - Multiple aliases should be separated by a linebreak;
-   - Do not include the command name.
- - "RESPONSE TEXT" - the reply's text content
- - "RESPONSE IMAGE" 
-   - Public link to the reply's image content
-   - The link should take directly to the image
- - "TTS" - if that command should be read by discord's _text-to-speech_
- - "REPLY" - if the response should be sent as a reply 
-
-!['commands' sheet](screenshots/commands-example.png "'commands' sheet")
-
-### Triggers' worksheet
-It must have the following columns:
- - "TRIGGER" - message content that'll trigger the reply below
-   - Write it in lowercase - detection is not case-sensitive;
-   - Multiple triggers should be separated by a linebreak (Alt + Enter).
- - "RESPONSE TEXT"
- - "RESPONSE IMAGE"
- - "TTS" - if that command should be read by discord's _text-to-speech_
- - "REPLY" - if the response should be sent as a reply 
-
-!['triggers' sheet](screenshots/triggers-example.png "'triggers' sheet")
-
-## Hosting
-It was designed to be in a Heroku dyno, but you may do it however you prefer.
-
-The `>codenames` command uses Selenium and to make it work with Heroku, you must add the following buildpacks to your app.
-
-![Heroku Buildpacks](screenshots/heroku-example.png "Heroku Buildpacks")
-
-If you are hosting outside Heroku, you may need to comment out the SuperMarselo.py cog's 17th line and integrate a Chrome webdriver to the code manually.
+</p>
+<p align = "center">
+<a href="zenith.eesc@gmail.com">zenith.eesc@gmail.com</a>
+</p>
