@@ -1,7 +1,7 @@
-from dotenv import load_dotenv
 from os import getenv
 
 import gspread
+from dotenv import load_dotenv
 from oauth2client.service_account import ServiceAccountCredentials
 
 load_dotenv()
@@ -31,10 +31,10 @@ triggerSheet = spreadsheet.worksheet("triggers").get_all_records()
 def refreshSheet():
     # Refreshes the sheet's data
     spreadsheet = client.open_by_key(SPREADSHEET_KEY)
-    commandSheet = spreadsheet.worksheet("commands").get_all_records()
-    triggerSheet = spreadsheet.worksheet("triggers").get_all_records()
+    commandSheet = [ record for record in spreadsheet.worksheet("commands").get_all_records() if record["COMMAND"] ]
+    triggerSheet = [ record for record in spreadsheet.worksheet("triggers").get_all_records() if record["TRIGGER"] ]
 
-    isEmpty = True if len(triggerSheet) == 0 and len(commandSheet) == 0 else False
+    isEmpty = len(triggerSheet) == 0 and len(commandSheet) == 0
 
     return spreadsheet, commandSheet, triggerSheet, isEmpty
 

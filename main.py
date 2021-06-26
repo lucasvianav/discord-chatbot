@@ -1,12 +1,10 @@
 import os
 import random
-from asyncio import sleep
 from datetime import timedelta
 from re import search, sub
 
 import discord
 import pymongo
-from discord import message
 from discord.ext import commands, tasks
 from discord.utils import get
 
@@ -49,7 +47,7 @@ async def on_ready():
 @bot.event
 async def on_member_join(member):
     print(f"\n [*] {member.display_name} has joined the server.")
-    
+
     # Gets all roles that sould be added to the members
     roles = db.find_one({"description": "onMemberJoinRoles"})['roles']
     roles = list(filter(lambda r: r, map(lambda r: get(member.guild.roles, name=r), roles)))
@@ -61,7 +59,7 @@ async def on_member_join(member):
     channel = get(member.guild.text_channels, name=WELCOME_CHANNEL)
     response = await channel.send(f'{member.mention} Seja bem vindo(a), meu {random.choice(VOCATIVES)}!')
     print("   [**] The welcome message was successfully sent.")
-    
+
     await reactToResponse(bot, response)
 
 # Whenever a new message is sent to a channel the bot has access to
@@ -71,7 +69,7 @@ async def on_message(message):
 
     # Checks for all triggers listed in the spreadsheet
     for element in triggerSheet:
-        if message.content and message.content.lower() in filter(lambda e: e, element["TRIGGER"].split('\n')):
+        if message.content and message.content.lower() in [ trigger for trigger in element["TRIGGER"].split('\n') if trigger ]:
             print(f"\n [*] Trigger: '{message.content}', by {message.author.display_name}.")
 
             await reactToMessage(bot, message, [MESSAGE_EMOJI])
@@ -80,10 +78,10 @@ async def on_message(message):
             img = getImage(element["RESPONSE IMAGE"])
 
             # activates text-to-speech if specified
-            tts = 'True' if element['TTS'] == 'TRUE' else 'False'
+            tts = element['TTS'] == 'TRUE'
 
             # If an image link was specified
-            if img: 
+            if img:
                 response = await message.channel.send(content=element["RESPONSE TEXT"], file=discord.File(img), tts=tts)
                 os.remove(img) # Deletes the image from local directory
 
@@ -147,13 +145,13 @@ async def clear(ctx):
     print(f'\n [*] \'>clear\' command called on the {ctx.channel.name} channel.')
 
     await reactToMessage(bot, ctx.message, ['⚰️'])
-    
+
     timestamp = ctx.message.created_at - timedelta(minutes=10)
-    
+
     def filterFunction(m):
-        notPinned = not m.pinned 
+        notPinned = not m.pinned
         isMe = (m.author == bot.user)
-        isImportant = search('`\[ABERTURA DE PROJETOS\]`\n\n', m.content) or search('`\[PRESENÇA DE REUNIÃO\]`\n\n', m.content) or search('`\[VOTAÇÃO\]`\n\n', m.content)
+        isImportant = search(r'`\[ABERTURA DE PROJETOS\]`\n\n', m.content) or search(r'`\[PRESENÇA DE REUNIÃO\]`\n\n', m.content) or search(r'`\[VOTAÇÃO\]`\n\n', m.content)
         # hasPrefix = search('^>\S.*$', m.content)
         didIReact = get(m.reactions, me=True)
         isHelp = m.content == '>help'
@@ -169,7 +167,7 @@ async def clear(ctx):
 # Sends a passed message to the specified channel
 @bot.command(
     brief='Manda uma mensagem no canal escolhido.',
-    help='Sintaxe: >send "$MENSAGEM" @ "$CANAL"\n\nEsse comando vai enviar a $MENSAGEM no $CANAL, em que $CANAL pode ser tanto o nome do canal desejado quanto sua mention.\n\nPor exemplo, o comando a seguir vai enviar "Oi! Tudo bem?" no canal "random":\n>send "Oi! Tudo bem?" @ "random".\n\nOBS: Tanto a mensagem quanto o canal desejado devem estar entre aspas e deve haver exatamente um espaço entre cada bloco do comando (mensagem, @ e canal). Caso você queira que sua mensagem contenha uma arroba, escreva dentro dela \@.\n\n(esse comando foi feito especialmente para o Júlio <3)',
+    help='Sintaxe: >send "$MENSAGEM" @ "$CANAL"\n\nEsse comando vai enviar a $MENSAGEM no $CANAL, em que $CANAL pode ser tanto o nome do canal desejado quanto sua mention.\n\nPor exemplo, o comando a seguir vai enviar "Oi! Tudo bem?" no canal "random":\n>send "Oi! Tudo bem?" @ "random".\n\nOBS: Tanto a mensagem quanto o canal desejado devem estar entre aspas e deve haver exatamente um espaço entre cada bloco do comando (mensagem, @ e canal). Caso você queira que sua mensagem contenha uma arroba, escreva dentro dela \\@.\n\n(esse comando foi feito especialmente para o Júlio <3)',
     aliases=[]
 )
 async def send(ctx, *argv):
@@ -180,17 +178,17 @@ async def send(ctx, *argv):
 
     argv = " ".join(argv)
     argv = argv.split(' @ ')
-    
+
     # checks if arguments are valid
     if len(argv) != 2 or not search('[^"]', argv[0]) or not search('[^"]', argv[1]):
         response = 'Os argumentos passados são inválidos. Para mais informações, envie ">help send".'
 
     else:
-        message = sub('^"(.+)"$', '\g<1>', argv[0]).replace('\@', '@')
-        channelRef = sub('^"(.+)"$', '\g<1>', argv[1]).replace('\@', '@')
-        
+        message = sub('^"(.+)"$', r'\g<1>', argv[0]).replace('\\@', '@')
+        channelRef = sub('^"(.+)"$', r'\g<1>', argv[1]).replace('\\@', '@')
+
         channel = get(ctx.guild.text_channels, name=channelRef) or get(ctx.guild.text_channels, mention=channelRef)
-        
+
         # if the channel exists
         if channel:
             permissionsUser= channel.permissions_for(ctx.author)
@@ -204,10 +202,10 @@ async def send(ctx, *argv):
             elif permissionsUser.send_messages and permissionsUser.read_messages:
                 message = await channel.send(message)
                 await reactToMessage(bot, message, ['🤠', '📢'])
-        
+
                 response = f'A mensagem foi enviada com sucesso no {channel.mention}.'
-                
-            else: 
+
+            else:
                 response = f'Infelizmente você não tem permissão para mandar mensagens {channel.mention}'
 
         # if the channel does not exist
