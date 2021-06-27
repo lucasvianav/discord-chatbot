@@ -125,7 +125,7 @@ def writeCogs(cogSheet: list, commands: list):
 
                 cog.write("        images = getImages(image_links)\n\n")
 
-                cog.write("        if img:\n")
+                cog.write("        if images:\n")
                 cog.write(f"            response = await ctx.{'send' if not reply else 'reply'}(content=txt, files=[ discord.File(img) for img in images ], tts={tts})\n")
                 cog.write("            for img in images: os.remove(img)\n\n")
 
