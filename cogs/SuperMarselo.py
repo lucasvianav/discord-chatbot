@@ -155,7 +155,7 @@ class SuperMarselo(commands.Cog):
         print('\n [*] \'>saideira\' command called.')
         await reactToMessage(self.bot, ctx.message, ['🍉', '🚩'])
 
-        response = await ctx.reply(f"A saideira do {ctx.author.mention} está oficialmente declarada! A próxima partida será a última dele. Em caso de saideira de conversa, \"a próxima partida\" equivale aos próximos 30 minutos de conversa. \n\nPara mais informações, acione o comando `>regrasSaideira`.")
+        response = await ctx.reply(f"A saideira do {ctx.author.mention} está oficialmente declarada! A próxima partida será a última dele. Em caso de saideira de conversa, \"a próxima partida\" equivale aos próximos 30 minutos de um bom papo. \n\nPara mais informações, acione o comando `>regrasSaideira`.")
 
         await reactToResponse(self.bot, response)
 
@@ -170,7 +170,7 @@ class SuperMarselo(commands.Cog):
         print('\n [*] \'>saideira\' command called.')
         await reactToMessage(self.bot, ctx.message, ['🍉', '🚩'])
 
-        response = await ctx.reply("**A REGRA É CLARA!**\n\nA saideira precisa ser previamente declarada com uso do comando `>saideira`. Caso contrário, a saideira é inválida e todos têm direito de acionar o comando `>kakashi` para quem descumpriu a regra.\n\nVale lembrar, que a saideira de conversa equivale a 30 minutos de um bom papo.")
+        response = await ctx.reply("**A REGRA É CLARA!**\n\nA saideira precisa ser previamente declarada com uso do comando `>saideira`. Caso contrário, a saideira é inválida e todos têm direito de acionar o comando `>kakashi` para quem descumpriu a regra.\n\nA partir do momento em que a saideira for declarada, o declarante deve continuar jogando por no mínimo mais uma (01) partida e, no máximo, duas (02) - depois desse tempo, a saideira expira e deverá ser declarada novamente. Vale lembrar, que a \"partida\" da saideira de conversa equivale a 30 minutos de um bom papo.")
 
         await reactToResponse(self.bot, response)
 
