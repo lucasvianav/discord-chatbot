@@ -7,7 +7,7 @@ The code is kinda chaotic and not too well commented. Sorry.
 
 ## Config
 
-You must provide your own Google Sheets API's credentials variables as well as your Discord token, spreadsheet key and MongoDB Atlas URI. You must provide the data as a `credentials.json` and `.env` on the project's root directory or as Heroku config variables (if you're hosting in Heroku, see image below).
+You must provide your own Google Sheets API's credentials variables as well as your Discord token, spreadsheet key and MongoDB Atlas URI. The data may be provided as a `credentials.json` and `.env` on the project's root directory or as Heroku config variables (if you're hosting in Heroku, see image below).
 
 If you don't know how to get Google's API credentials, I recommend [this video](https://www.youtube.com/watch?v=cnPlKLEGR7E).
 
@@ -21,7 +21,7 @@ MONGODB_ATLAS_URI =
 
 Heroku's config variables should be set as follows:
 
-![Heroku Config Variables](heroku-config-variables.png "How to set Heroku config variables")
+![Heroku Config Variables](./screenshots/heroku-config-variables.png "How to set Heroku config variables")
 
 ### DISCORD_TOKEN
 
