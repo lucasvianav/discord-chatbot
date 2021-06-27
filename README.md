@@ -58,8 +58,9 @@ It must have the following columns:
   - Do not include the command name.
 - "RESPONSE TEXT" - the reply's text content
 - "RESPONSE IMAGE"
-  - Public link to the reply's image content
-  - The link should take directly to the image
+  - Public links to the reply's image contents
+  - Maximum of 10 images, separeted by linebreaks;
+  - The links should take directly to the images
 - "TTS" - if that command should be read by discord's _text-to-speech_
 - "REPLY" - if the response should be sent as a reply
 

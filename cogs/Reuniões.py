@@ -39,7 +39,7 @@ def sortedMeetings(o):
     return {
         "byProject": {
             project[0]: {
-                day[0].title(): sorted(day[1], key=lambda time: int(sub('\D', '', time)))
+                day[0].title(): sorted(day[1], key=lambda time: int(sub(r'\D', '', time)))
                 for day in sorted(project[1].items(), key=lambda day: getWeekdayNumber[day[0].split('-')[0].lower()])
             }
             for project in sorted(o['byProject'].items(), key=lambda project: project[0])
@@ -48,7 +48,7 @@ def sortedMeetings(o):
         "byDay": {
             day[0]: {
                 time[0].lower(): sorted(time[1], key=lambda project: project.lower())
-                for time in sorted(day[1].items(), key=lambda time: int(sub('\D', '', time[0])))
+                for time in sorted(day[1].items(), key=lambda time: int(sub(r'\D', '', time[0])))
             }
             for day in sorted(o['byDay'].items(), key=lambda day: getWeekdayNumber[day[0].split('-')[0].lower()])
         }
@@ -134,7 +134,7 @@ class Reuniões(commands.Cog):
             response = 'O dia da semana inserido é inválido.'
             invalid = True
 
-        elif not search('\d{2}h\d{2}', meetingTime) or int(sub('\D', '', meetingTime[:2])) > 23:
+        elif not search(r'\d{2}h\d{2}', meetingTime) or int(sub(r'\D', '', meetingTime[:2])) > 23:
             response = 'O horário inserido é inválido. Favor inserir no formato "HHhMM", considerando também o formato 24h.\n*e.g.*: "09h15" ou "10h45" ou "15h30" ou "18h00".'
             invalid = True
 
@@ -166,9 +166,9 @@ class Reuniões(commands.Cog):
         serverRoles = [role.name for role in await ctx.guild.fetch_roles()] + ['Reunião de Diretoria (RD)', 'Reunião Geral (RG)']
         if not meetingName in serverRoles: response += f'\n\n__AVISO__: não existe nenhum cargo chamado "{meetingName}" no servidor.'
 
-        isBadTime = flag and 14 < int(sub('\D', '', meetingTime[:2])) and int(sub('\D', '', meetingTime[:2])) < 18
+        isBadTime = flag and 14 < int(sub(r'\D', '', meetingTime[:2])) and int(sub(r'\D', '', meetingTime[:2])) < 18
         if isBadTime: response += f'\n\n*mas vê essa imagem aí e fica esperto(a), malandro(a) {ctx.author.mention}*'
-        elif flag and (19 < int(sub('\D', '', meetingTime[:2])) or int(sub('\D', '', meetingTime[:2])) < 12): response += '\n\n*nossa, que horário horrível pra reunião... tô de olho ein!*'
+        elif flag and (19 < int(sub(r'\D', '', meetingTime[:2])) or int(sub(r'\D', '', meetingTime[:2])) < 12): response += '\n\n*nossa, que horário horrível pra reunião... tô de olho ein!*'
         elif flag and (meetingDay == 'Sábado' or meetingDay == 'Domingo'): response += f'\n\n*isso é crime, ein! {meetingDay.lower()} é dia de descanso, não é dia de reunião não*'
 
         response = await ctx.send(response) if not isBadTime else await ctx.send(response, file=discord.File('reunião-15h.png'))
@@ -209,7 +209,7 @@ class Reuniões(commands.Cog):
                 response = 'O dia da semana inserido é inválido.'
                 invalid = True
 
-            elif not search('\d{2}h\d{2}', meetingTime):
+            elif not search(r'\d{2}h\d{2}', meetingTime):
                 response = 'O horário inserido é inválido. Favor inserir no formato "HHhMM".\n*e.g.*: "09h15" ou "10h45" ou "15h30" ou "18h00".'
                 invalid = True
 
