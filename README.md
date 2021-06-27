@@ -21,11 +21,11 @@ MONGODB_ATLAS_URI =
 
 Heroku's config variables should be set as follows:
 
-![Heroku Config Variables](./screenshots/heroku-config-variables.png "How to set Heroku config variables")
+![Heroku Config Variables](screenshots/heroku-config-vars.png "How to set Heroku config variables")
 
 ### DISCORD_TOKEN
 
-You must create a discord application in [here](https://discord.com/developers/applications/) and a bot inside it. The token needed is the bot's one, that can be found in https://discord.com/developers/applications/`<APPLICATION ID\>`/bot - as can be seen in the image below.
+You must create a discord application in [here](https://discord.com/developers/applications/) and a bot inside it. The token needed is the bot's one, that can be found in https://discord.com/developers/applications/<APPLICATION ID\>/bot - as can be seen in the image below.
 
 ![Where to get the DISCORD_TOKEN](screenshots/discord-token-example.png "Where to get the DISCORD_TOKEN")
 
