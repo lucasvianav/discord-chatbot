@@ -27,7 +27,7 @@ Heroku's config variables should be set as follows:
 
 You must create a discord application in [here](https://discord.com/developers/applications/) and a bot inside it. The token needed is the bot's one, that can be found in https://discord.com/developers/applications/`<APPLICATION ID\>`/bot - as can be seen in the image below.
 
-![Where to get the DISCORD_TOKEN](discord-token-example.png "Where to get the DISCORD_TOKEN")
+![Where to get the DISCORD_TOKEN](screenshots/discord-token-example.png "Where to get the DISCORD_TOKEN")
 
 ### SPREADSHEET_KEY
 
@@ -38,6 +38,8 @@ Get it from the spreadsheet's link: https://docs.google.com/spreadsheets/d/<SPRE
 Some commands I implemented - like the ones to track meetings and that use counters - depend on a database, for which I used MongoDB, specifically Mongo Atlas. For it to work right away, you just need to create a cluster of your own, put the connection URI in the `.env` and create in it a cluter, a database and a collection, all of them named `discord-bot`.
 
 Inside the database, create three objects as in the images below - `byProject` and `byDay` being empty objects, `roles` being an empty array, and counters being an object in which the keys are the names of the commands in the Counters.py cog and the values are any int number.
+
+![Mongo Atlas Database Organization](screenshots/mongo-example.png "Mongo Atlas Database Organization")
 
 ## Google Sheet
 
@@ -61,6 +63,8 @@ It must have the following columns:
 - "TTS" - if that command should be read by discord's _text-to-speech_
 - "REPLY" - if the response should be sent as a reply
 
+!['commands' sheet](screenshots/commands-example.png "'commands' sheet")
+
 ### Triggers' worksheet
 
 It must have the following columns:
@@ -73,10 +77,14 @@ It must have the following columns:
 - "TTS" - if that command should be read by discord's _text-to-speech_
 - "REPLY" - if the response should be sent as a reply
 
+!['triggers' sheet](screenshots/triggers-example.png "'triggers' sheet")
+
 ## Hosting
 
 It was designed to be in a Heroku dyno, but you may do it however you prefer.
 
 The `>codenames` command uses Selenium and to make it work with Heroku, you must add the following buildpacks to your app.
+
+![Heroku Buildpacks](screenshots/heroku-example.png "Heroku Buildpacks")
 
 If you are hosting outside Heroku, you may need to comment out the SuperMarselo.py cog's 17th line and integrate a Chrome webdriver to the code manually.
