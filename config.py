@@ -52,8 +52,8 @@ if not os.path.isfile('./credentials.json'):
         "client_id": GOOGLE_CREDENTIALS_CLIENT_ID,
         "auth_uri": GOOGLE_CREDENTIALS_AUTH_URI,
         "token_uri": GOOGLE_CREDENTIALS_TOKEN_URI,
-        "auth_provider": GOOGLE_CREDENTIALS_AUTH_PROVIDER,
-        "client": GOOGLE_CREDENTIALS_CLIENT
+        "auth_provider_x509_cert_url": GOOGLE_CREDENTIALS_AUTH_PROVIDER,
+        "client_x509_cert_url": GOOGLE_CREDENTIALS_CLIENT
     }
 
     with open('./credentials.json', 'w') as f:
