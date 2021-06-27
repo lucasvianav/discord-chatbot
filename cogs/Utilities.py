@@ -24,7 +24,7 @@ class Utilities(commands.Cog):
 
         print('\n [*] \'>openProject\' command called.')
 
-        projects = list(filter(lambda project: not search('^\s*$', project), ' '.join(projects).split(' | ')))
+        projects = list(filter(lambda project: not search(r'^\s*$', project), ' '.join(projects).split(' | ')))
 
         if projects[0].startswith('$mention='):
             mention = projects[0].replace('$mention=', '')
@@ -79,7 +79,7 @@ class Utilities(commands.Cog):
 
         response = await ctx.send(response)
 
-        await reactToMessage(self.bot, response, reactions.values())
+        await reactToMessage(self.bot, response, list(reactions.values()))
 
         # Creates roles
         print(f"   [**] The roles are being created.")
@@ -268,7 +268,7 @@ class Utilities(commands.Cog):
             sleepTime = 45 # seconds
 
             response = await ctx.reply(f'A execução desse comando vai **kickar do servidor** todos os `{len(role.members)}` membros do `{argv}`. Você tem certeza que deseja prosseguir?\n\nPara continuar o processo, reaja nesta mensagem com {emoji} dentro dos próximos `{sleepTime}s`.')
-            await reactToMessage(self.bot, response, '❓')
+            await reactToMessage(self.bot, response, ['❓'])
 
             print(f"   [**] This routine will sleep for {sleepTime} seconds whiles it waits for users to react.")
             await sleep(sleepTime)
@@ -291,10 +291,8 @@ class Utilities(commands.Cog):
             notKicked = []
             for member in role.members:
                 try: await member.kick(reason=f'Uso do comando ">kick", por {getMemberName(ctx.author)} no cargo {argv}.')
-
                 except: notKicked.append(member)
-
-            else: kicked.append(member)
+                else: kicked.append(member)
 
             kicked = ", ".join(map(getMemberMention, kicked))
             notKicked = ", ".join(map(getMemberMention, notKicked))
