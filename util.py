@@ -1,6 +1,7 @@
 import os
 import re
 from functools import reduce
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -9,7 +10,7 @@ WELCOME_CHANNEL = 'random' # channel in which to send welcome message for new me
 MESSAGE_EMOJI = '🍉' # emoji that'll be mainly used to react to user messages
 RESPONSE_EMOJI = '🤠' # emoji that'll be used to react to all bot messages
 FIXED_COGS = [ # all cogs that aren't from the google sheet
-    'Reuniões', 'OnMemberJoin', 'Decisions', 
+    'Reuniões', 'OnMemberJoin', 'Decisions',
     'Counters', 'SuperMarselo', 'Utilities'
 ]
 AVAILABLE_REACTIONS = [ # list of reactions that'll be used in poll-like commands
@@ -48,33 +49,34 @@ async def reactToMessage(bot, message, emojiList: list):
             print(f"   [**] The reaction {emoji} was successfully added.")
 
 # downloads the image from a link and returns it's path
-def getImage(img: str):
-    if img.startswith('http'):
-        try: r = requests.get(img)
+def getImages(links: list) -> list:
+    links = [ url for url in links if url.startswith('http') ]
+    images = []
 
-        except:
-            print('   [**] There was an error with the image link: ' + img)
-            img = False
+    for i, url in enumerate(links):
+        # maximum of 10 images
+        if i >= 10: break
+
+        try: r = requests.get(url)
+
+        except: print('   [**] There was an error with the image link: ' + url)
 
         else:
-            with open('aux.png', 'wb') as f: f.write(r.content)
+            filename = f'./images/aux{i}.png'
+            with open(filename, 'wb') as f: f.write(r.content)
             r.close()
 
-            img = 'aux.png'
+            images.append(filename)
             print('   [**] The image was successfully downloaded.')
 
-    else:
-        print('   [**] There is no image to attach.')
-        img = False
-
-    return img
+    return images
 
 # Writes all commands from cogSheets to disk
 def writeCogs(cogSheet: list, commands: list):
     i = 0
     while i < len(cogSheet):
         auxCog = (cogSheet[i]["COMMAND CATEGORY"]).replace(' ', '_')
-        
+
         if not auxCog:
             i += 1
             continue
@@ -90,24 +92,24 @@ def writeCogs(cogSheet: list, commands: list):
         cog.write(f"class {auxCog.title()}(commands.Cog):\n")
         cog.write("    def __init__(self, bot):\n")
         cog.write("        self.bot = bot\n\n")
-        
+
         while i < len(cogSheet) and cogSheet[i]["COMMAND CATEGORY"] == auxCog.replace('_', ' '):
             element = dict(cogSheet[i])
-            
-            isNameInvalid = (not element["COMMAND NAME"]) or bool(re.search('^\d', element["COMMAND NAME"])) or bool(re.search('[^a-zA-Z\dáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]', element["COMMAND NAME"]))
+
+            isNameInvalid = (not element["COMMAND NAME"]) or bool(re.search(r'^\d', element["COMMAND NAME"])) or bool(re.search(r'[^a-zA-Z\dáàâãéèêíïóôõöúçñÁÀÂÃÉÈÊÍÏÓÔÕÖÚÇÑ]', element["COMMAND NAME"]))
 
             if not (element["COMMAND NAME"] in commands or isNameInvalid):
                 aliases = [f"'{e}'" for e in element["COMMAND ALIASES"].split('\n')] if element["COMMAND ALIASES"] != "" else None
                 if aliases:
                     # makes sure that each alias is unique
                     aliases = reduce(lambda acc, cur: acc + ([cur] if cur not in acc else []), aliases, [])
-                    
+
                     if (("'" + element["COMMAND NAME"] + "'") in aliases): aliases.remove("'" + element["COMMAND NAME"] + "'")
                     if "''" in aliases: aliases.remove("''")
                     if "' '" in aliases: aliases.remove("' '")
-                    
+
                 tts = 'True' if element['TTS'] == 'TRUE' else 'False'
-                reply = True if element['REPLY'] == 'TRUE' else False
+                reply = element['REPLY'] == 'TRUE'
 
                 if aliases: cog.write(f"    @commands.command(aliases=[{', '.join(aliases)}])\n")
                 else: cog.write(f"    @commands.command()\n")
@@ -118,21 +120,21 @@ def writeCogs(cogSheet: list, commands: list):
                 cog.write("        print(\"\\n [*] '>%s' command called.\")\n\n" % element["COMMAND NAME"])
                 cog.write("        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])\n\n")
 
-                cog.write("        img = '%s'\n" % element["RESPONSE IMAGE"])
+                cog.write("        image_links = %s\n" % str(element["RESPONSE IMAGE"].split('\n')))
                 cog.write("        txt = \"\"\"%s\"\"\"\n\n" % element["RESPONSE TEXT"].replace("\n","\\n").replace("'","\\'").replace('"','\\"'))
 
-                cog.write("        img = getImage(img)\n\n")
+                cog.write("        images = getImages(image_links)\n\n")
 
                 cog.write("        if img:\n")
-                cog.write(f"            response = await ctx.{'send' if not reply else 'reply'}(content=txt, file=discord.File(img), tts={tts})\n")
-                cog.write("            os.remove(img)\n\n")
+                cog.write(f"            response = await ctx.{'send' if not reply else 'reply'}(content=txt, files=[ discord.File(img) for img in images ], tts={tts})\n")
+                cog.write("            for img in images: os.remove(img)\n\n")
 
                 cog.write(f"        else: response = await ctx.{'send' if not reply else 'reply'}(content=txt, tts={tts})\n\n")
 
                 cog.write("        print('   [**] The response was successfully sent.')\n\n")
 
                 cog.write("        await reactToResponse(self.bot, response)\n\n")
-                
+
                 commands.append(element["COMMAND NAME"])
                 if aliases: commands.append(aliases)
 
@@ -148,7 +150,7 @@ def refreshCogs(bot, cogSheet: list, hasLoaded=True):
     if not os.path.isdir('./cogs'): os.mkdir('./cogs')
 
     # Unloads and then removes all cogs
-    for filename in os.listdir('./cogs'): 
+    for filename in os.listdir('./cogs'):
         if filename.endswith('.py') and filename.replace('.py', '') not in FIXED_COGS:
             if hasLoaded: bot.unload_extension(f'cogs.{filename.replace(".py","")}')
             os.remove(f'./cogs/{filename}')

@@ -183,16 +183,20 @@ async def on_message(message):
 
             await reactToMessage(bot, message, [MESSAGE_EMOJI])
 
+            image_links = element["RESPONSE IMAGE"].split('\n')
+
             # gets image attatchment
-            img = getImage(element["RESPONSE IMAGE"])
+            images = getImages(image_links)
 
             # activates text-to-speech if specified
             tts = element['TTS'] == 'TRUE'
 
             # If an image link was specified
-            if img:
-                response = await message.channel.send(content=element["RESPONSE TEXT"], file=discord.File(img), tts=tts)
-                os.remove(img) # Deletes the image from local directory
+            if images:
+                response = await message.channel.send(content=element["RESPONSE TEXT"], files=[ discord.File(img) for img in images ], tts=tts)
+
+                # Deletes the image from local directory
+                for img in images: os.remove(img)
 
             else:
                 response = await message.channel.send(content=element["RESPONSE TEXT"], tts=tts)
