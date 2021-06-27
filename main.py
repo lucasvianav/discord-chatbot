@@ -67,6 +67,115 @@ async def on_member_join(member):
 async def on_message(message):
     if message.author == bot.user: return
 
+    if message.content.lower() == "bom dia":
+        print(f"\n [*] Trigger: 'bom dia', by {message.author.display_name}.")
+
+        # Reacts to the trigger message (definition in util.py)
+        await reactToMessage(bot, message, ['🌞', '💛'])
+
+        # Sends response message
+        response = await message.reply(f"Bom dia flor do dia, {message.author.mention}!")
+        await reactToResponse(bot, response, emojiList=['🌻']) # Reacts to the response message
+
+        return
+
+    if message.content.lower() == 'boa noite':
+        print(f"\n [*] Trigger: 'boa noite', by {message.author.display_name}.")
+
+        # Reacts to the trigger message (definition in util.py)
+        await reactToMessage(bot, message, ['🌑', '💜'])
+
+        # Sends response message
+        response = await message.reply(f"Boa noite flor da noite, {message.author.mention}!")
+        await reactToResponse(bot, response, emojiList=['🌼']) # Reacts to the response message
+
+        return
+
+    if message.content.lower() == 'boa tarde':
+        print(f"\n [*] Trigger: 'boa tarde', by {message.author.display_name}.")
+
+        # Reacts to the trigger message (definition in util.py)
+        await reactToMessage(bot, message, ['🌇', '🧡'])
+
+        # Sends response message
+        response = await message.reply(f"Boa tarde flor da tarde, {message.author.mention}!")
+        await reactToResponse(bot, response, emojiList=['💐']) # Reacts to the response message
+
+        return
+
+    if message.content.lower() in ['oi', 'oi arrombado']:
+        print(f"\n [*] Trigger: 'oi arrombado', by {message.author.display_name}.")
+
+        roles = [ role.name for role in message.author.roles ]
+
+        await reactToMessage(bot, message, ['🦆'] if 'Bixos' in roles or 'Convidado(a)' in roles else ['💩'])
+
+        if 'Presidência' in roles:
+            output = 'olá prezado presidente da SA-SEL'
+            img = './images/prezado-presidente.png'
+
+        elif 'Bixos' in roles or 'Convidado(a)' in roles:
+            output = "oi meu anjo"
+            img = None
+
+        else:
+            output = 'oi arrombado'
+            img = './images/oi-arrombado.jpg'
+
+        response = await message.reply(f"{output}, {message.author.mention}!", file=(discord.File(img) if img else img))
+
+        await reactToResponse(bot, response, emojiList=['🤪']) # Reacts to the response message
+
+        return
+
+    if message.content.lower() in ['triste', 'tristeza', 'estou triste', ':c', ':(', 'estou devastado', 'estou devastado por dentro']:
+        print(f"\n [*] Trigger: 'estou devastado por dentro', by {message.author.display_name}.")
+
+        # Reacts to the trigger message (definition in util.py)
+        await reactToMessage(bot, message, ['😢'])
+
+        # Sends response message
+        response = await message.channel.send(f"oh céus, oh deus, oh vida :c", file=discord.File('./images/estou-devastado.png'))
+        await reactToResponse(bot, response, emojiList=['😿']) # Reacts to the response message
+
+        return
+
+    if message.content.lower() == 'risos':
+        print(f"\n [*] Trigger: 'risos', by {message.author.display_name}.")
+
+        # Reacts to the trigger message (definition in util.py)
+        await reactToMessage(bot, message, ['😂'])
+
+        # Sends response message
+        response = await message.channel.send(f"hahaha")
+        await reactToResponse(bot, response, emojiList=['😹']) # Reacts to the response message
+
+        return
+
+    if message.content.lower() in ['auau',  'au au', 'nautau', '>arthur']:
+        print(f"\n [*] Trigger: 'auau', by {message.author.display_name}.")
+
+        # Reacts to the trigger message (definition in util.py)
+        await reactToMessage(bot, message, ['🐾'])
+
+        # Sends response message
+        response = await message.channel.send(f"feliz nAUtAU", file=discord.File('./images/todão-arthur.png'))
+        await reactToResponse(bot, response, emojiList=['🐶']) # Reacts to the response message
+
+        return
+
+    if message.content == 'F':
+        print(f"\n [*] Trigger: 'F', by {message.author.display_name}.")
+
+        # Reacts to the trigger message (definition in util.py)
+        await reactToMessage(bot, message, ['🪑'])
+
+        # Sends response message
+        response = await message.channel.send(random.choice(['que descanse em paz', 'my thoughts and prayers']))
+        await reactToResponse(bot, response) # Reacts to the response message
+
+        return
+
     # Checks for all triggers listed in the spreadsheet
     for element in triggerSheet:
         if message.content and message.content.lower() in [ trigger for trigger in element["TRIGGER"].split('\n') if trigger ]:
@@ -105,7 +214,7 @@ async def credits(ctx):
 
     await reactToMessage(bot, ctx.message, ['🤙', '🍉', '😁', '💜', '👋'])
 
-    response = await ctx.reply("Esse bot foi desenvolvido pelo Flip em um momento de tédio. Obrigado pelo interesse <3 \nGitHub: https://github.com/lucasvianav. \nRepositório no GitHub: https://github.com/lucasvianav/discord-chatbot.")
+    response = await ctx.reply("Esse bot foi desenvolvido pelo Flip em um momento de tédio. Obrigado pelo interesse <3 \nGitHub: https://github.com/lucasvianav. \nRepositório no GitHub: https://github.com/sa-sel/discord-bot.")
     print("   [**] The response was successfully sent.")
     await reactToResponse(bot, response)
 
@@ -131,6 +240,50 @@ async def refresh(ctx):
         response = await ctx.send("Não há comandos nem triggers cadastrados.")
         print("   [**] The response was successfully sent.")
         await reactToResponse(bot, response, emojiList=['😢'])
+
+@bot.command(brief='"Bane" um "usuário" do servidor.')
+async def ban(ctx, *user):
+    await ctx.trigger_typing()
+
+    print('\n [*] \'>ban\' command called.')
+
+    await reactToMessage(bot, ctx.message, ['👺'])
+
+    response = await ctx.send(f'O usuário \'' + ' '.join(user) + '\' foi banido.')
+
+    await reactToResponse(bot, response, emojiList=['💀'])
+
+@bot.command(brief='Chama um membro. e.g. ">cadê @pessoa"', aliases=['cade', 'kd'])
+async def cadê(ctx, *user):
+    await ctx.trigger_typing()
+
+    print('\n [*] \'>cadê\' command called.')
+
+    await reactToMessage(bot, ctx.message, ['🤬'])
+
+    user = ' '.join(user)
+    response = await ctx.send(f'**cadê vc otário??** {user}', file=discord.File('./images/cade-vc.png'))
+
+    await reactToResponse(bot, response, emojiList=['❔'])
+
+@bot.command(brief='Press F to pay respects.')
+async def F(ctx):
+    await ctx.trigger_typing()
+
+    print('\n [*] \'>F\' command called.')
+
+    await reactToMessage(bot, ctx.message, ['⚰️'])
+
+    response = await ctx.send('`Press F to Pay Respects`')
+
+    await reactToResponse(bot, response)
+
+@bot.command(brief='Uma linda homenagem a uma cachorra natalina.')
+async def arthur(ctx):
+    await ctx.trigger_typing()
+
+    ctx.content = '>arthur'
+    await on_message(ctx)
 
 # deletes all messages sent by the bot or that triggered it
 # (does not delete "important" messages, like from >trackPresence and >openProjects commands)
