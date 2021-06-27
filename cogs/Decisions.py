@@ -2,6 +2,7 @@ import random
 from asyncio import sleep
 from re import search
 
+import discord
 from discord.ext import commands
 from discord.utils import get
 
@@ -132,7 +133,7 @@ class Decisions(commands.Cog):
 
         print('\n [*] \'>poll\' command called.')
 
-        items = list(filter(lambda item: not search('^\s*$', item), ' '.join(items).split(' | ')))
+        items = list(filter(lambda item: not search(r'^\s*$', item), ' '.join(items).split(' | ')))
 
         # parses formatting options
         removeList = []; invalid = False

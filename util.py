@@ -166,3 +166,15 @@ def refreshCogs(bot, cogSheet: list, hasLoaded=True):
             bot.load_extension(f'cogs.{filename.replace(".py","")}')
 
     return
+
+# Returns a list of words (from a portuguese dictionary website)
+def getWords():
+    # Gets the dict's source code (r = response)
+    # and parses it with Beautiful Soup
+    r = requests.get('https://www.dicionarioinformal.com.br/')
+    soup = BeautifulSoup(r.text, 'html.parser')
+
+    wordSpans = soup.find('div', class_='col-sm-12 col-md-4').findAll('span')
+
+    return [ word.text for word in wordSpans ]
+
