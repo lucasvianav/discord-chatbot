@@ -20,40 +20,40 @@ else:
 # if no credential is found, search for it as enviromental variables
 if not os.path.isfile('./credentials.json'):
     if os.path.isfile('./.env'):
-        TYPE = os.getenv("TYPE")
-        PROJECT_ID = os.getenv("PROJECT_ID")
-        PRIVATE_KEY_ID = os.getenv("PRIVATE_KEY_ID")
-        PRIVATE_KEY = os.getenv("PRIVATE_KEY")
-        CLIENT_EMAIL = os.getenv("CLIENT_EMAIL")
-        CLIENT_ID = os.getenv("CLIENT_ID")
-        AUTH_URI = os.getenv("AUTH_URI")
-        TOKEN_URI = os.getenv("TOKEN_URI")
-        AUTH_PROVIDER = os.getenv("AUTH_PROVIDER")
-        CLIENT = os.getenv("CLIENT")
+        GOOGLE_CREDENTIALS_TYPE = os.getenv("GOOGLE_CREDENTIALS_TYPE")
+        GOOGLE_CREDENTIALS_PROJECT_ID = os.getenv("GOOGLE_CREDENTIALS_PROJECT_ID")
+        GOOGLE_CREDENTIALS_PRIVATE_KEY_ID = os.getenv("GOOGLE_CREDENTIALS_PRIVATE_KEY_ID")
+        GOOGLE_CREDENTIALS_PRIVATE_KEY = os.getenv("GOOGLE_CREDENTIALS_PRIVATE_KEY")
+        GOOGLE_CREDENTIALS_CLIENT_EMAIL = os.getenv("GOOGLE_CREDENTIALS_CLIENT_EMAIL")
+        GOOGLE_CREDENTIALS_CLIENT_ID = os.getenv("GOOGLE_CREDENTIALS_CLIENT_ID")
+        GOOGLE_CREDENTIALS_AUTH_URI = os.getenv("GOOGLE_CREDENTIALS_AUTH_URI")
+        GOOGLE_CREDENTIALS_TOKEN_URI = os.getenv("GOOGLE_CREDENTIALS_TOKEN_URI")
+        GOOGLE_CREDENTIALS_AUTH_PROVIDER = os.getenv("GOOGLE_CREDENTIALS_AUTH_PROVIDER")
+        GOOGLE_CREDENTIALS_CLIENT = os.getenv("GOOGLE_CREDENTIALS_CLIENT")
 
     else:
-        TYPE = os.environ["TYPE"]
-        PROJECT_ID = os.environ["PROJECT_ID"]
-        PRIVATE_KEY_ID = os.environ["PRIVATE_KEY_ID"]
-        PRIVATE_KEY = os.environ["PRIVATE_KEY"]
-        CLIENT_EMAIL = os.environ["CLIENT_EMAIL"]
-        CLIENT_ID = os.environ["CLIENT_ID"]
-        AUTH_URI = os.environ["AUTH_URI"]
-        TOKEN_URI = os.environ["TOKEN_URI"]
-        AUTH_PROVIDER = os.environ["AUTH_PROVIDER"]
-        CLIENT = os.environ["CLIENT"]
+        GOOGLE_CREDENTIALS_TYPE = os.environ["GOOGLE_CREDENTIALS_TYPE"]
+        GOOGLE_CREDENTIALS_PROJECT_ID = os.environ["GOOGLE_CREDENTIALS_PROJECT_ID"]
+        GOOGLE_CREDENTIALS_PRIVATE_KEY_ID = os.environ["GOOGLE_CREDENTIALS_PRIVATE_KEY_ID"]
+        GOOGLE_CREDENTIALS_PRIVATE_KEY = os.environ["GOOGLE_CREDENTIALS_PRIVATE_KEY"]
+        GOOGLE_CREDENTIALS_CLIENT_EMAIL = os.environ["GOOGLE_CREDENTIALS_CLIENT_EMAIL"]
+        GOOGLE_CREDENTIALS_CLIENT_ID = os.environ["GOOGLE_CREDENTIALS_CLIENT_ID"]
+        GOOGLE_CREDENTIALS_AUTH_URI = os.environ["GOOGLE_CREDENTIALS_AUTH_URI"]
+        GOOGLE_CREDENTIALS_TOKEN_URI = os.environ["GOOGLE_CREDENTIALS_TOKEN_URI"]
+        GOOGLE_CREDENTIALS_AUTH_PROVIDER = os.environ["GOOGLE_CREDENTIALS_AUTH_PROVIDER"]
+        GOOGLE_CREDENTIALS_CLIENT = os.environ["GOOGLE_CREDENTIALS_CLIENT"]
 
     credentials = {
-        "type": TYPE,
-        "project_id": PROJECT_ID,
-        "private_key_id": PRIVATE_KEY_ID,
-        "private_key": PRIVATE_KEY,
-        "client_email": CLIENT_EMAIL,
-        "client_id": CLIENT_ID,
-        "auth_uri": AUTH_URI,
-        "token_uri": TOKEN_URI,
-        "auth_provider": AUTH_PROVIDER,
-        "client": CLIENT
+        "type": GOOGLE_CREDENTIALS_TYPE,
+        "project_id": GOOGLE_CREDENTIALS_PROJECT_ID,
+        "private_key_id": GOOGLE_CREDENTIALS_PRIVATE_KEY_ID,
+        "private_key": GOOGLE_CREDENTIALS_PRIVATE_KEY,
+        "client_email": GOOGLE_CREDENTIALS_CLIENT_EMAIL,
+        "client_id": GOOGLE_CREDENTIALS_CLIENT_ID,
+        "auth_uri": GOOGLE_CREDENTIALS_AUTH_URI,
+        "token_uri": GOOGLE_CREDENTIALS_TOKEN_URI,
+        "auth_provider": GOOGLE_CREDENTIALS_AUTH_PROVIDER,
+        "client": GOOGLE_CREDENTIALS_CLIENT
     }
 
     with open('./credentials.json', 'w') as f:
