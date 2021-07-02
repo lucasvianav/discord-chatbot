@@ -193,13 +193,15 @@ async def on_message(message):
 
             # If an image link was specified
             if images:
-                response = await message.channel.send(content=element["RESPONSE TEXT"], files=[ discord.File(img) for img in images ], tts=tts)
+                # COMPREM MOLETONS
+                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM MOLETONS!!!!!111!!!!** ENVIE `>moletons`', files=[ discord.File(img) for img in images ], tts=tts)
 
                 # Deletes the image from local directory
                 for img in images: os.remove(img)
 
             else:
-                response = await message.channel.send(content=element["RESPONSE TEXT"], tts=tts)
+                # COMPREM MOLETONS
+                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM MOLETONS!!!!!111!!!!** ENVIE `>moletons`', tts=tts)
 
             print("   [**] The response was successfully sent.")
 

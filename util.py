@@ -10,8 +10,8 @@ WELCOME_CHANNEL = 'random' # channel in which to send welcome message for new me
 MESSAGE_EMOJI = '🍉' # emoji that'll be mainly used to react to user messages
 RESPONSE_EMOJI = '🤠' # emoji that'll be used to react to all bot messages
 FIXED_COGS = [ # all cogs that aren't from the google sheet
-    'Reuniões', 'OnMemberJoin', 'Decisions',
-    'Counters', 'SuperMarselo', 'Utilities'
+    'Counters', 'Decisions', 'OnMemberJoin',
+    'Reuniões', 'SuperMarselo', 'Utilities'
 ]
 AVAILABLE_REACTIONS = [ # list of reactions that'll be used in poll-like commands
     '🤠', '🍉', '💘', '🏂',
@@ -55,7 +55,8 @@ def getImages(links: list) -> list:
 
     for i, url in enumerate(links):
         # maximum of 10 images
-        if i >= 10: break
+        # COMPREM MOLETONS
+        if i >= 9: break
 
         try: r = requests.get(url)
 
@@ -69,7 +70,9 @@ def getImages(links: list) -> list:
             images.append(filename)
             print('   [**] The image was successfully downloaded.')
 
-    return images
+
+    # COMPREM MOLETONS
+    return images + ( ['./images/MOLETOM.jpeg'] if images else [] )
 
 # Writes all commands from cogSheets to disk
 def writeCogs(cogSheet: list, commands: list):
@@ -121,7 +124,8 @@ def writeCogs(cogSheet: list, commands: list):
                 cog.write("        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])\n\n")
 
                 cog.write("        image_links = %s\n" % str(element["RESPONSE IMAGE"].split('\n')))
-                cog.write("        txt = \"\"\"%s\"\"\"\n\n" % element["RESPONSE TEXT"].replace("\n","\\n").replace("'","\\'").replace('"','\\"'))
+                # COMPREM MOLETONS
+                cog.write("        txt = \"\"\"%s\"\"\"\n\n" % (element["RESPONSE TEXT"].replace("\n","\\n").replace("'","\\'").replace('"','\\"') + "\\n\\n**COMPREM MOLETONS!!!!!111!!!!** ENVIE `>moletons`"))
 
                 cog.write("        images = getImages(image_links)\n\n")
 
