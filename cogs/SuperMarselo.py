@@ -15,7 +15,7 @@ from util import *
 class SuperMarselo(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # self.CHROME_DRIVER = ChromeDriverManager().install()
+        self.CHROME_DRIVER = ChromeDriverManager().install()
 
     # Separates everyone on the author's voice channel into teams
     # and creates a Codenames room in portuguese

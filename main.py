@@ -37,7 +37,9 @@ def refreshBot():
 async def on_ready():
     print("\n [*] The bot is running.")
 
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">help"))
+    # COMPREM MOLETONS
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">moletons"))
+    # await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">help"))
     print("\n [*] The bot's status was successfully set.")
 
     periodicRefresh.start()
