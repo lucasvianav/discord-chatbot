@@ -199,7 +199,8 @@ async def on_message(message):
                 response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM MOLETONS!!!!!111!!!!** ENVIE `>moletons`', files=[ discord.File(img) for img in images ], tts=tts)
 
                 # Deletes the image from local directory
-                for img in images: os.remove(img)
+                for img in images:
+                    if not img.endswith('MOLETOM.jpeg'): os.remove(img)
 
             else:
                 # COMPREM MOLETONS
