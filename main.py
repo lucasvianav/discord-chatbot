@@ -195,7 +195,7 @@ async def on_message(message):
 
             # If an image link was specified
             if images:
-                COMPREM SAMBAS FIO-TERRA
+                # COMPREM SAMBAS FIO-TERRA
                 response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM SAMBAS FIO-TERRA!!!!!111!!onze!!!!** ENVIE `>samba`', files=[ discord.File(img) for img in images ], tts=tts)
 
                 # Deletes the image from local directory
