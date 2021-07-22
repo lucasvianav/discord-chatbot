@@ -37,8 +37,8 @@ def refreshBot():
 async def on_ready():
     print("\n [*] The bot is running.")
 
-    # COMPREM MOLETONS
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">moletons"))
+    # COMPREM SAMBAS FIO-TERRA
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">samba"))
     # await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">help"))
     print("\n [*] The bot's status was successfully set.")
 
@@ -195,16 +195,16 @@ async def on_message(message):
 
             # If an image link was specified
             if images:
-                # COMPREM MOLETONS
-                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM MOLETONS!!!!!111!!!!** ENVIE `>moletons`', files=[ discord.File(img) for img in images ], tts=tts)
+                COMPREM SAMBAS FIO-TERRA
+                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM SAMBAS FIO-TERRA!!!!!111!!onze!!!!** ENVIE `>samba`', files=[ discord.File(img) for img in images ], tts=tts)
 
                 # Deletes the image from local directory
                 for img in images:
-                    if not img.endswith('MOLETOM.jpeg'): os.remove(img)
+                    if not img.endswith('SAMBA.png'): os.remove(img)
 
             else:
-                # COMPREM MOLETONS
-                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM MOLETONS!!!!!111!!!!** ENVIE `>moletons`', tts=tts)
+                # COMPREM SAMBAS FIO-TERRA
+                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM SAMBAS FIO-TERRA!!!!!111!!onze!!!!** ENVIE `>samba`', tts=tts)
 
             print("   [**] The response was successfully sent.")
 

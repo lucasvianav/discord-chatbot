@@ -55,7 +55,7 @@ def getImages(links: list) -> list:
 
     for i, url in enumerate(links):
         # maximum of 10 images
-        # COMPREM MOLETONS
+        # COMPREM SAMBAS FIO-TERRA
         if i >= 9: break
 
         try: r = requests.get(url)
@@ -71,8 +71,8 @@ def getImages(links: list) -> list:
             print('   [**] The image was successfully downloaded.')
 
 
-    # COMPREM MOLETONS
-    return images + ( ['./images/MOLETOM.jpeg'] if images else [] )
+    # COMPREM SAMBAS FIO-TERRA
+    return images + ( ['./images/SAMBA.png'] if images else [] )
 
 # Writes all commands from cogSheets to disk
 def writeCogs(cogSheet: list, commands: list):
@@ -124,17 +124,17 @@ def writeCogs(cogSheet: list, commands: list):
                 cog.write("        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])\n\n")
 
                 cog.write("        image_links = %s\n" % str(element["RESPONSE IMAGE"].split('\n')))
-                # COMPREM MOLETONS
-                cog.write("        txt = \"\"\"%s\"\"\"\n\n" % (element["RESPONSE TEXT"].replace("\n","\\n").replace("'","\\'").replace('"','\\"') + "\\n\\n**COMPREM MOLETONS!!!!!111!!!!** ENVIE `>moletons`"))
+                # COMPREM SAMBAS FIO-TERRA
+                cog.write("        txt = \"\"\"%s\"\"\"\n\n" % (element["RESPONSE TEXT"].replace("\n","\\n").replace("'","\\'").replace('"','\\"') + "\\n\\n**COMPREM SAMBAS FIO-TERRA!!!!!111!!onze!!!!** ENVIE `>samba`"))
 
                 cog.write("        images = getImages(image_links)\n\n")
 
                 cog.write("        if images:\n")
                 cog.write(f"            response = await ctx.{'send' if not reply else 'reply'}(content=txt, files=[ discord.File(img) for img in images ], tts={tts})\n")
-                # COMPREM MOLETONS
+                # COMPREM SAMBAS FIO-TERRA
                 # cog.write("            for img in images: os.remove(img)\n\n")
                 cog.write("            for img in images:\n")
-                cog.write("                if not img.endswith('MOLETOM.jpeg'): os.remove(img)\n\n")
+                cog.write("                if not img.endswith('SAMBA.png'): os.remove(img)\n\n")
 
                 cog.write(f"        else: response = await ctx.{'send' if not reply else 'reply'}(content=txt, tts={tts})\n\n")
 
