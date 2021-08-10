@@ -37,9 +37,7 @@ def refreshBot():
 async def on_ready():
     print("\n [*] The bot is running.")
 
-    # COMPREM SAMBAS FIO-TERRA
-    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">samba"))
-    # await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">help"))
+    await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=">help"))
     print("\n [*] The bot's status was successfully set.")
 
     periodicRefresh.start()
@@ -195,16 +193,10 @@ async def on_message(message):
 
             # If an image link was specified
             if images:
-                # COMPREM SAMBAS FIO-TERRA
-                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM SAMBAS FIO-TERRA!!!!!111!!onze!!!!** ENVIE `>samba`', files=[ discord.File(img) for img in images ], tts=tts)
-
-                # Deletes the image from local directory
-                for img in images:
-                    if not img.endswith('SAMBA.png'): os.remove(img)
+                response = await message.channel.send(content=element["RESPONSE TEXT"], files=[ discord.File(img) for img in images ], tts=tts)
 
             else:
-                # COMPREM SAMBAS FIO-TERRA
-                response = await message.channel.send(content=element["RESPONSE TEXT"] + '\n\n**COMPREM SAMBAS FIO-TERRA!!!!!111!!onze!!!!** ENVIE `>samba`', tts=tts)
+                response = await message.channel.send(content=element["RESPONSE TEXT"], tts=tts)
 
             print("   [**] The response was successfully sent.")
 
