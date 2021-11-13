@@ -22,7 +22,7 @@ class Utilities(commands.Cog):
     async def openProject(self, ctx, *projects):
         await ctx.trigger_typing()
 
-        print('\n [*] \'>openProject\' command called.')
+        logger.info("`>openProject` command called.")
 
         projects = list(filter(lambda project: not search(r'^\s*$', project), ' '.join(projects).split(' | ')))
 
@@ -39,14 +39,14 @@ class Utilities(commands.Cog):
         print(f"   [**] The passed projects are: {''.join(projects)}.")
 
         if 'Diretoria' not in [role.name for role in ctx.author.roles] or len(projects) > len(AVAILABLE_REACTIONS) or len(projects) == 0:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
 
             response = await ctx.send(('Apenas membros da diretoria podem abrir um projeto/criar um cargo.' if 'Diretoria' not in [role.name for role in ctx.author.roles] else f'É possível abrir no mínimo 1 e no máximo {len(AVAILABLE_REACTIONS)} projetos ao mesmo tempo.') + '\nEnvie `>help openProject` para mais informações.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
 
             return
 
-        await reactToMessage(self.bot, ctx.message, ['🔑', '🚪'])
+        await utils.react_message(ctx.message, ['🔑', '🚪'])
 
         server = ctx.guild
         serverRoles = await server.fetch_roles()
@@ -57,7 +57,7 @@ class Utilities(commands.Cog):
 
             if not mention:
                 response = await ctx.send(f'O cargo `{mentionText}` não existe.')
-                await reactToResponse(self.bot, response)
+                await utils.react_response(response)
                 return
 
             elif mentionText.lower() != 'everyone': mention = mention.mention
@@ -79,7 +79,7 @@ class Utilities(commands.Cog):
 
         response = await ctx.send(response)
 
-        await reactToMessage(self.bot, response, list(reactions.values()))
+        await utils.react_message(response, list(reactions.values()))
 
         # Creates roles
         print(f"   [**] The roles are being created.")
@@ -122,12 +122,12 @@ class Utilities(commands.Cog):
             print(f'   [**] {roles[reaction.emoji].name} was successfully created and added to the project\'s members.')
             response = await ctx.send(f'**Projeto**: {roles[reaction.emoji].mention}\n**Integrantes** [{len(reactors)}]: {", ".join([member.mention for member in reactors]) if reactors else "poxa, ninguém"}.\n\nCargo criado com sucesso!', delete_after=3600)
 
-            await reactToMessage(self.bot, response, [reaction.emoji])
+            await utils.react_message(response, [reaction.emoji])
 
             members[reaction.emoji] = list(map(lambda e: e, reactors))
 
         response = await cached.reply(f'{mention if mention else ""}{" " if mention else ""}Vale lembrar que se você não reagiu anteriormente e quer entrar no projeto, ainda dá tempo!\n\nQuaisquer pessoas que reajam à messagem de abertura dos projetos dentro das próximas **{sleepTime_hours} horas** receberão os devidos cargos.\n\nLink da mensagem para reagir: {cached.jump_url}', delete_after=3600)
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
         print(f"   [**] This routine will sleep {sleepTime_hours} hours while it monitors new reactions every hour.")
 
@@ -166,7 +166,7 @@ class Utilities(commands.Cog):
         for reaction in cached.reactions:
             breakpoint()
             response = await ctx.send(f'**Projeto**: {roles[reaction.emoji].mention}\n**Integrantes** [{len(members[reaction.emoji])}]: {", ".join([member.mention for member in members[reaction.emoji]]) if members[reaction.emoji] else "poxa, ninguém"}.')
-            await reactToMessage(self.bot, response, [reaction.emoji])
+            await utils.react_message(response, [reaction.emoji])
 
     # lists everybody that stays in the same voice channel as the author for at least 1min
     @commands.command(
@@ -180,13 +180,13 @@ class Utilities(commands.Cog):
         voiceChannel = ctx.author.voice.channel if ctx.author.voice else None
         server = ctx.guild
 
-        print(f'\n [*] \'>trackPresence\' command called on {("the" + voiceChannel.name) if voiceChannel else "no"} channel.')
+        logger.info(f"`>trackPresence` command called on {("the" + voiceChannel.name) if voiceChannel else "no"} channel.")
 
         if not voiceChannel:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
 
             response = await ctx.send('É necessário estar conectado em um canal de voz para utilizar esse comando.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
 
             return
 
@@ -194,17 +194,17 @@ class Utilities(commands.Cog):
         except ValueError: duration = None
 
         if not duration or duration < 10 or duration > 120:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
 
             response = await ctx.send('A duração precisa ser um número inteiro entre 10 e 120 minutos.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
 
             return
 
-        await reactToMessage(self.bot, ctx.message, ['🧮', '⏲️'])
+        await utils.react_message(ctx.message, ['🧮', '⏲️'])
 
         response = await ctx.send(f'{ctx.author.mention} Pode deixar, meu querido! Tô de olho no `{voiceChannel.name}` pelos próximos `{duration}` minutos :)')
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
         # People who were in the meeting
         people = []
@@ -224,7 +224,7 @@ class Utilities(commands.Cog):
         people = ', '.join([f'{member.nick} ({member.name})' if member.nick else member.name for member in list(filter(lambda member: not member.bot, [await server.fetch_member(id) for id in people]))])
 
         response = await ctx.send(f'`[PRESENÇA DE REUNIÃO]`\n\nRegistro de presença convocado por {ctx.author.mention}, no canal de voz `{voiceChannel.name}`.\n\nOs presentes na reunião que começou há `{duration} minutos` foram: `{people}`.')
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
     # kick all members that have a role (possibly not working)
     @commands.command(
@@ -235,17 +235,17 @@ class Utilities(commands.Cog):
     async def kick(self, ctx, *argv):
         await ctx.trigger_typing()
 
-        print('\n [*] \'>kick\' command called.')
+        logger.info("`>kick` command called.")
 
         if 'Diretoria' not in [role.name for role in ctx.author.roles]:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
 
             response = await ctx.reply(f'Apenas membros da diretoria podem utilizar esse comando. Por que você quer kickar os amiguinhos, {ctx.author.mention}? :c')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
 
             return
 
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI, '🚧'])
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI, '🚧'])
 
         argv = " ".join(argv)
 
@@ -268,7 +268,7 @@ class Utilities(commands.Cog):
             sleepTime = 45 # seconds
 
             response = await ctx.reply(f'A execução desse comando vai **kickar do servidor** todos os `{len(role.members)}` membros do `{argv}`. Você tem certeza que deseja prosseguir?\n\nPara continuar o processo, reaja nesta mensagem com {emoji} dentro dos próximos `{sleepTime}s`.')
-            await reactToMessage(self.bot, response, ['❓'])
+            await utils.react_message(response, ['❓'])
 
             print(f"   [**] This routine will sleep for {sleepTime} seconds whiles it waits for users to react.")
             await sleep(sleepTime)
@@ -302,7 +302,7 @@ class Utilities(commands.Cog):
 
         response = await ctx.reply(response)
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
     # list all members that have a role
     @commands.command(
@@ -313,8 +313,8 @@ class Utilities(commands.Cog):
     async def members(self, ctx, *argv):
         await ctx.trigger_typing()
 
-        print('\n [*] \'>kick\' command called.')
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI, '⁉️', 'ℹ️'])
+        logger.info("`>kick` command called.")
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI, '⁉️', 'ℹ️'])
 
         argv = " ".join(argv)
 
@@ -343,7 +343,7 @@ class Utilities(commands.Cog):
 
         response = await ctx.reply(response)
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
 def setup(bot):
     bot.add_cog(Utilities(bot))

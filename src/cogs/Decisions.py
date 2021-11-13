@@ -22,30 +22,30 @@ class Decisions(commands.Cog):
 
         number = abs(int(number))
 
-        print(f'\n [*] \'>d{number}\' command called.')
+        logger.info(f"`>d{number}` command called.")
 
-        await reactToMessage(self.bot, ctx.message, ['❔'])
+        await utils.react_message(ctx.message, ['❔'])
 
         output = random.choice(['cara', 'coroa']) if number == 2 else random.randint(1, number)
 
         response = await ctx.reply(output)
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
     # throws a coin
     @commands.command(brief='Cara ou coroa?', aliases=['coinFLIP', 'caracoroa', 'caraoucoroa'])
     async def coinflip(self, ctx):
         await ctx.trigger_typing()
 
-        print('\n [*] \'>coinflip\' command called.')
+        logger.info("`>coinflip` command called.")
 
-        await reactToMessage(self.bot, ctx.message, ['❔'])
+        await utils.react_message(ctx.message, ['❔'])
 
         output = random.choice(['cara', 'coroa'])
 
         response = await ctx.send(output)
 
-        await reactToResponse(self.bot, response, emojiList=['💸', '💰'])
+        await utils.react_response(response, emojiList=['💸', '💰'])
 
     # chooses between two options
     @commands.command(
@@ -56,14 +56,14 @@ class Decisions(commands.Cog):
     async def choose(self, ctx, *options):
         await ctx.trigger_typing()
 
-        print('\n [*] \'>choose\' command called.')
-        await reactToMessage(self.bot, ctx.message, ['❔'])
+        logger.info("`>choose` command called.")
+        await utils.react_message(ctx.message, ['❔'])
 
         options = ' '.join(options).split(' | ')
 
         response = await ctx.reply(random.choice(options))
 
-        await reactToResponse(self.bot, response, emojiList=['❕'])
+        await utils.react_response(response, emojiList=['❕'])
 
     # makes a poll
     @commands.command(
@@ -74,7 +74,7 @@ class Decisions(commands.Cog):
     async def poll(self, ctx, *items):
         await ctx.trigger_typing()
 
-        print('\n [*] \'>poll\' command called.')
+        logger.info("`>poll` command called.")
         
         items = list(filter(lambda item: not search('^\s*$', item), ' '.join(items).split(' | ')))
 
@@ -122,17 +122,17 @@ class Decisions(commands.Cog):
         print(f"   [**] The passed items are: {', '.join(items)}.")
 
         if len(items) > len(AVAILABLE_REACTIONS) or len(items) <= 1 or invalid:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
         
             response = await ctx.send(('Os parâmetros "mention", "title" e "duration" só podem ser definidos uma vez cada. Além disso, o valor passado para "duration" deve ser um número.') if invalid else (f'É possível votar entre 2 e {len(AVAILABLE_REACTIONS)} opções ao mesmo tempo.') + '\nEnvie `>help poll` para mais informações.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
             
             return
         
         else:
             for item in removeList: items.remove(item)
 
-        await reactToMessage(self.bot, ctx.message, ['🆗'])
+        await utils.react_message(ctx.message, ['🆗'])
         
         server = ctx.guild
         serverRoles = await server.fetch_roles()
@@ -145,7 +145,7 @@ class Decisions(commands.Cog):
             
             if not mention:
                 response = await ctx.send(f'O cargo `{mentionText}` não existe.')
-                await reactToResponse(self.bot, response)
+                await utils.react_response(response)
                 return
             
             elif mentionText.lower() != 'everyone': mention = mention.mention
@@ -164,7 +164,7 @@ class Decisions(commands.Cog):
         
         response = await ctx.send(response)
 
-        await reactToMessage(self.bot, response, reactions.values())
+        await utils.react_message(response, reactions.values())
         
         # Sleeps for $duration minutes
         print(f"   [**] This routine will sleep for {duration} minutes while it waits for users to react.")
@@ -199,11 +199,11 @@ class Decisions(commands.Cog):
         winners = ", ".join(["**" + item["item"] + "** (" + item["emoji"] + ")" for item in winners])
 
         response = await ctx.send(f'`[RESULTADO DA VOTAÇÃO]`\n\n{mention if mention else ""}{" " if mention else ""}' + (f"**{title}**\n(enquete convocada por {ctx.author.mention})\n\n" if title else "") + f'__{"Opções vencedoras (empate)" if len(winnerReactions) > 1 else "Opção vencedora"}__: {winners}\n\n{"(enquete convocada por " + ctx.author.mention + ")" if not title else ""}')
-        await reactToMessage(self.bot, response, winnerReactions)
+        await utils.react_message(response, winnerReactions)
 
         if report:
             response = await ctx.send(f'`[RELATÓRIO DA VOTAÇÃO]`\n\n{("**" + title + "** ") if title else ""}Respostas em ordem decrescente de número de votos:\n\n{result}')
-            await reactToMessage(self.bot, response, winnerReactions)
+            await utils.react_message(response, winnerReactions)
 
 def setup(bot):
     bot.add_cog(Decisions(bot))

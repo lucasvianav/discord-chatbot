@@ -18,9 +18,9 @@ class Counters(commands.Cog):
     async def júlio(self, ctx):
         await ctx.trigger_typing()
 
-        print(f'\n [*] \'>júlio\' command called.')
+        logger.info(f"`>júlio` command called.")
 
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI])
 
         # increments that counter and saves it to the db
         self.counters['júlio'] += 1
@@ -28,7 +28,7 @@ class Counters(commands.Cog):
 
         response = await ctx.send(f'**Júlio ||Calandrin||, você é incrível e nós te amamos!** O Júlio já foi apreciado `{self.counters["júlio"]}` vezes.')
 
-        await reactToResponse(self.bot, response, ['❤️'])
+        await utils.react_response(response, ['❤️'])
 
 def setup(bot):
     bot.add_cog(Counters(bot))

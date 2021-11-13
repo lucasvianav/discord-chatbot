@@ -18,15 +18,20 @@ RESPONSE_EMOJI = "🤠"  # emoji that'll be used to react to all bot messages
 WELCOME_CHANNEL = "random"  # channel in which to send welcome message for new members
 
 AVAILABLE_REACTIONS = [
-    "🤠",
     "🍉",
-    "💘",
-    "🏂",
-    "🧨",
     "🎂",
-    "💣",
     "🎷",
+    "🏂",
+    "👋",
+    "💘",
+    "💜",
+    "💣",
+    "💻",
+    "😁",
     "🛹",
+    "🤙",
+    "🤠",
+    "🧨",
 ]
 
 # list of vocatives to be used on the

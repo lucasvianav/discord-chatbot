@@ -21,9 +21,9 @@ class onMemberJoin(commands.Cog):
     async def listRolesOMJ(self, ctx):
         await ctx.trigger_typing()
 
-        print("\n [*] '>listRolesOMJ' command called.")
+        logger.info("`>listRolesOMJ` command called.")
 
-        await reactToMessage(self.bot, ctx.message, ['🐥', MESSAGE_EMOJI, '🚼'])
+        await utils.react_message(ctx.message, ['🐥', MESSAGE_EMOJI, '🚼'])
                 
         response = ('`Os cargos que serão dados automaticamente a qualquer um que entrar no servidor são:`\n  * ' + '\n  * '.join(self.roles)) if self.roles else 'No momento, nenhum cargo será dado automaticamente a quem entrar no servidor.'
         response += '\n\nNão se esqueça, você pode adicionar ou remover cargos para serem dados automaticamente a novos membros com os comandos `>addRolesOMJ` e `>removeRolesOMJ`, respectivamente.'
@@ -32,7 +32,7 @@ class onMemberJoin(commands.Cog):
 
         print('   [**] The response was successfully sent.')
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
         
     # add a new role to be added to new members when they join the server
     @commands.command(
@@ -43,19 +43,19 @@ class onMemberJoin(commands.Cog):
     async def addRolesOMJ(self, ctx, *roles):
         await ctx.trigger_typing()
 
-        print("\n [*] '>addRolesOMJ' command called.")
+        logger.info("`>addRolesOMJ` command called.")
         
         roles = list(filter(lambda r: r, map(lambda r: r.replace(' \| ', ' | '), ' '.join(roles).split(' | '))))
         
         if 'Diretoria' not in [role.name for role in ctx.author.roles] or not roles:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
         
             response = await ctx.send('Apenas membros da diretoria podem utilizar esse comando.' if roles else 'Nenhum nome de cargo foi passado. Para mais informações, envie ">help addRolesOMJ".')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
             
             return
 
-        await reactToMessage(self.bot, ctx.message, ['🐥', MESSAGE_EMOJI, '🚼'])
+        await utils.react_message(ctx.message, ['🐥', MESSAGE_EMOJI, '🚼'])
 
         serverRoles = [role.name for role in await ctx.guild.fetch_roles()]
         invalidRoles = list(map(lambda r: f'"{r}"', filter(lambda r: r not in serverRoles, roles)))
@@ -75,7 +75,7 @@ class onMemberJoin(commands.Cog):
 
         print('   [**] The response was successfully sent.')
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
         
     # remove a role from the list to be added to new members when they join the server
     @commands.command(
@@ -86,17 +86,17 @@ class onMemberJoin(commands.Cog):
     async def removeRolesOMJ(self, ctx, *roles):
         await ctx.trigger_typing()
 
-        print("\n [*] '>removeRolesOMJ' command called.")
+        logger.info("`>removeRolesOMJ` command called.")
         
         if 'Diretoria' not in [role.name for role in ctx.author.roles]:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
         
             response = await ctx.send('Apenas membros da diretoria podem utilizar esse comando.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
             
             return
 
-        await reactToMessage(self.bot, ctx.message, ['🐥', MESSAGE_EMOJI, '🚼'])
+        await utils.react_message(ctx.message, ['🐥', MESSAGE_EMOJI, '🚼'])
 
         roles = list(filter(lambda r: r, map(lambda r: r.replace(' \| ', ' | '), ' '.join(roles).split(' | '))))
         
@@ -121,7 +121,7 @@ class onMemberJoin(commands.Cog):
 
         print('   [**] The response was successfully sent.')
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
 def setup(bot):
     bot.add_cog(onMemberJoin(bot))

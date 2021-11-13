@@ -72,9 +72,9 @@ class Reuniões(commands.Cog):
     async def meetings(self, ctx, type='project'):
         await ctx.trigger_typing()
 
-        print("\n [*] '>meetings' command called.")
+        logger.info("`>meetings` command called.")
 
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI])
 
         if type not in ACCEPTABLE_TYPES['byProject'] + ACCEPTABLE_TYPES['byDay']: type = 'day'
 
@@ -101,7 +101,7 @@ class Reuniões(commands.Cog):
 
         print('   [**] The response was successfully sent.')
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
     # schedule a new meeting
     @commands.command(
@@ -112,9 +112,9 @@ class Reuniões(commands.Cog):
     async def addMeeting(self, ctx, *info):
         await ctx.trigger_typing()
 
-        print("\n [*] '>addMeeting' command called.")
+        logger.info("`>addMeeting` command called.")
 
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI])
 
         info = ' '.join(info).split(' | ')
         invalid = False
@@ -175,7 +175,7 @@ class Reuniões(commands.Cog):
 
         print('   [**] The response was successfully sent.')
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
     # unschedule a new meeting
     @commands.command(
@@ -186,9 +186,9 @@ class Reuniões(commands.Cog):
     async def removeMeeting(self, ctx, *info):
         await ctx.trigger_typing()
 
-        print("\n [*] '>removeMeeting' command called.")
+        logger.info("`>removeMeeting` command called.")
 
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI])
 
         info = ' '.join(info).split(' | ')
         invalid = False
@@ -255,7 +255,7 @@ class Reuniões(commands.Cog):
 
         print('   [**] The response was successfully sent.')
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
     # list of all of the author's meetings
     @commands.command(
@@ -266,9 +266,9 @@ class Reuniões(commands.Cog):
     async def myMeetings(self, ctx, type='day'):
         await ctx.trigger_typing()
 
-        print("\n [*] '>myMeetings' command called.")
+        logger.info("`>myMeetings` command called.")
 
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI])
 
         roles = [ role.name for role in ctx.author.roles ]
         if not 'Convidado(a)' in roles: roles += ['Reunião Geral (RG)']
@@ -310,7 +310,7 @@ class Reuniões(commands.Cog):
 
         print('   [**] The response was successfully sent.')
 
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
 
     # list of all of a role's members' meetings
     @commands.command(
@@ -319,9 +319,9 @@ class Reuniões(commands.Cog):
         aliases=[]
     )
     async def busy(self, ctx, *roleName):
-        print("\n [*] '>busy' command called.")
+        logger.info("`>busy` command called.")
 
-        await reactToMessage(self.bot, ctx.message, [MESSAGE_EMOJI])
+        await utils.react_message(ctx.message, [MESSAGE_EMOJI])
         await ctx.trigger_typing()
 
         server = ctx.guild
@@ -331,11 +331,11 @@ class Reuniões(commands.Cog):
 
         if server.default_role == roleName.lower():
             response = ctx.reply('Para isso, use o comando `>meetings`.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
 
         elif not role:
             response = await ctx.send(f'O cargo `{roleName}` não existe.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
 
         else:
             roles = [ r.name for r in set([ member_role for member in role.members for member_role in member.roles ]) ]
@@ -366,7 +366,7 @@ class Reuniões(commands.Cog):
 
             response = await ctx.reply(txt)
             print('   [**] The response was successfully sent.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
 
 def setup(bot):
     bot.add_cog(Reuniões(bot))

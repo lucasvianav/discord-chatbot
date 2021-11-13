@@ -25,18 +25,18 @@ class SuperMarselo(commands.Cog):
     async def codenames(self, ctx, createRoom=None):
         await ctx.trigger_typing()
 
-        print('\n [*] \'>codenames\' command called.')
+        logger.info("`>codenames` command called.")
         
         voiceChannel = ctx.author.voice.channel if ctx.author.voice else None
         if not voiceChannel or len(list(filter(lambda member: not member.bot, voiceChannel.members))) < 4:
-            await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
         
             response = await ctx.send('É necessário estar conectado em um canal de voz para utilizar esse comando.' if not voiceChannel else 'É necessário no mínimo 4 pessoas para jogar Codenames.')
-            await reactToResponse(self.bot, response)
+            await utils.react_response(response)
             
             return
             
-        else: await reactToMessage(self.bot, ctx.message, ['🎲', '🎮', '🏏', '🕹️'])
+        else: await utils.react_message(ctx.message, ['🎲', '🎮', '🏏', '🕹️'])
         
         createRoom = True if createRoom and createRoom.lower() in ['$createroom=true', '$createroom', 'true', 'createroom', 'criarsala', 'link', 'url', 'uri'] else False
         
@@ -110,7 +110,7 @@ class SuperMarselo(commands.Cog):
         else: roomURL = None
 
         response = await ctx.send('`TÁ NA HORA DO CODENAMES GAROTADA`\n\n' + (f'**Link da sala**: {roomURL}\n\n' if roomURL else '') + f'**Time azul**  🔵:\n__*Spymaster*__: {blueSpymaster}\n__*Operatives*__: {", ".join(blueOperatives)}\n\n**Time vermelho**  🔴:\n__*Spymaster*__: {redSpymaster}\n__*Operatives*__: {", ".join(redOperatives)}\n\nQue vença o melhor time!')
-        await reactToResponse(self.bot, response)
+        await utils.react_response(response)
             
         if roomURL:
             # Sleeps for 3 minute
@@ -134,7 +134,7 @@ class SuperMarselo(commands.Cog):
                     
                 else: response = await ctx.send(f'Alô, {ctx.author.mention}! Eu vou sair da sala, agora **o novo host é o `{newHost.text}`**.\n\ncc: {" ".join(people)}')
                     
-                finally: await reactToResponse(self.bot, response)
+                finally: await utils.react_response(response)
 
                 driver.find_element_by_xpath('//div[contains(text(), "A Voz da SA-SEL") and contains(@class, "button-inner")]').click()
                 waiter(driver, 5, poll_frequency=0.1).until(presence((By.XPATH, '//div[text()="Leave the Room"]'))).click()
