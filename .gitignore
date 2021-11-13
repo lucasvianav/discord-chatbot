@@ -1,6 +1,7 @@
 Session.vim
 .secrets.json
 credentials.json
+*/credentials.json
 
 # Byte-compiled / optimized / DLL files
 *__pycache__/*
