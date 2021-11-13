@@ -1,3 +1,5 @@
+import re
+
 import discord
 import requests
 
@@ -119,3 +121,19 @@ def get_images(links: list[str]) -> list[str]:
             r.close()
 
     return images
+
+
+def parse_time(time: str) -> float or None:
+    duration = int(re.sub(r"\D", "", time, "g"))
+    unit = re.sub(r"\d", "", time, "g")
+
+    if ("minutes").startswith(unit):
+        duration *= 60
+    elif ("hours").startswith(unit):
+        duration *= 3600
+    elif ("seconds").startswith(unit):
+        pass
+    else:
+        duration = None
+
+    return duration
