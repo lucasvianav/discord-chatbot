@@ -5,7 +5,6 @@ from re import search
 import discord
 from discord.ext import commands
 from discord.utils import get
-
 from util import *
 
 
@@ -344,6 +343,7 @@ class Utilities(commands.Cog):
         response = await ctx.reply(response)
 
         await utils.react_response(response)
+
 
 def setup(bot):
     bot.add_cog(Utilities(bot))

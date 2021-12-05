@@ -72,7 +72,9 @@ VOCATIVES = [
 # |_|    \___/|_| \_|\____| |_| |___\___/|_| \_|____/
 
 
-async def react_message(message: discord.Message, emojis: str or list[str]) -> None:
+async def react_message(
+    message: discord.Message, emojis: str or list[str] = MESSAGE_EMOJI
+) -> None:
     if type(emojis) == "str":
         emojis = [emojis]
 
@@ -93,15 +95,16 @@ async def react_response(response: discord.Message, emojis: str or list[str]) ->
 
 def get_images(links: list[str]) -> list[str]:
     """
-    Downloads the images from the provided links to a temporary directory.
+    Download the images from the provided links to a temporary directory.
 
-    Parameters:
+    Parameters
+    ----------
         links (str[]): images' URLs
 
-    Returns:
+    Returns
+    -------
         str[]: paths to downloaded images
     """
-
     links = [url for url in links if url.startswith("http")]
     images = []
 

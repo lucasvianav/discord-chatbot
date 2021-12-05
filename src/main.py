@@ -22,8 +22,7 @@ bot = commands.Bot(command_prefix=">", intents=intents)
 
 
 def __refresh_bot():
-    """Refreshes the sheets' commands and triggers."""
-
+    """Refresh the sheets' commands and triggers."""
     (
         config.spreadsheet,
         config.command_sheet,
