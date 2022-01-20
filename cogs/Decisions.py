@@ -178,7 +178,7 @@ class Decisions(commands.Cog):
 
         print(f"   [**] The passed items are: {', '.join(items)}.")
 
-        if len(items) > len(AVAILABLE_REACTIONS) or len(items) <= 1 or invalid:
+        if len(items) - len(removeList) > len(AVAILABLE_REACTIONS) or len(items) <= 1 or invalid:
             await reactToMessage(self.bot, ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
 
             response = await ctx.send(('Os parâmetros "mention", "title" e "duration" só podem ser definidos uma vez cada. Além disso, o valor passado para "duration" deve ser um número.') if invalid else (f'É possível votar entre 2 e {len(AVAILABLE_REACTIONS)} opções ao mesmo tempo.') + '\nEnvie `>help poll` para mais informações.')
