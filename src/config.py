@@ -83,10 +83,9 @@ trigger_sheet = spreadsheet.worksheet("triggers").get_all_records()
 
 def refresh_sheet():
     """
-    Function to update the commands and triggers
+    Update the commands and triggers
     by getting the spreadsheet's info again
     """
-
     spreadsheet = client.open_by_key(SPREADSHEET_KEY)
     commandSheet = [
         record

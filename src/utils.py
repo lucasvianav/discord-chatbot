@@ -5,8 +5,8 @@ import requests
 
 import logger
 
-#  ____ ___  _   _ ____ _____  _    _   _ _____ ____
-# / ___/ _ \| \ | / ___|_   _|/ \  | \ | |_   _/ ___|
+#   ____ ___  _   _ ____ _____  _    _   _ _____ ____
+#  / ___/ _ \| \ | / ___|_   _|/ \  | \ | |_   _/ ___|
 # | |  | | | |  \| \___ \ | | / _ \ |  \| | | | \___ \
 # | |__| |_| | |\  |___) || |/ ___ \| |\  | | |  ___) |
 # \____\___/|_| \_|____/ |_/_/   \_\_| \_| |_| |____/
@@ -145,3 +145,21 @@ def parse_time(time: str) -> float or None:
         duration = None
 
     return duration
+
+
+def parse_piped_list(items: list[str]) -> list[str]:
+    """Join all strings from a list and splits it by the pipes."""
+    return " ".join(items).split(" | ")
+
+
+def extract_options_from_list(items: list[str], target_options: list[str]) -> dict[str, list[any]]:
+    """
+    Extract a list of $-preceded options from a list of strings.
+
+    Parameters
+    ----------
+    items: list[str]
+        List of items to be extracted from.
+    target_options: dict[str, list[any]]
+        List of option names. Each will be preceded by '$'.
+    """
