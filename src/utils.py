@@ -6,17 +6,14 @@ from discord.utils import get
 
 import logger
 
-#   ____ ___  _   _ ____ _____  _    _   _ _____ ____
-#  / ___/ _ \| \ | / ___|_   _|/ \  | \ | |_   _/ ___|
-# | |  | | | |  \| \___ \ | | / _ \ |  \| | | | \___ \
-# | |__| |_| | |\  |___) || |/ ___ \| |\  | | |  ___) |
-# \____\___/|_| \_|____/ |_/_/   \_\_| \_| |_| |____/
-
-MESSAGE_EMOJI = "🍉"  # emoji that'll be mainly used to react to user messages
-RESPONSE_EMOJI = "🤠"  # emoji that'll be used to react to all bot messages
+# emoji that'll be mainly used to react to user messages
+MESSAGE_EMOJI = "🍉"
+# emoji that'll be used to react to all bot messages
+RESPONSE_EMOJI = "🤠"
 
 # TODO: un-hardcode this
-WELCOME_CHANNEL = "random"  # channel in which to send welcome message for new members
+# channel in which to send welcome message for new members
+WELCOME_CHANNEL = "random"
 
 AVAILABLE_REACTIONS = [
     "🍉",
@@ -33,6 +30,7 @@ AVAILABLE_REACTIONS = [
     "🤙",
     "🤠",
     "🧨",
+    "🥰",
 ]
 
 # list of vocatives to be used on the
@@ -63,14 +61,9 @@ VOCATIVES = [
     "zé",
     "comum",
     "joca",
+    "miguel",
+    "grande gatsby",
 ]
-
-
-# _____ _   _ _   _  ____ _____ ___ ___  _   _ ____
-# |  ___| | | | \ | |/ ___|_   _|_ _/ _ \| \ | / ___|
-# | |_  | | | |  \| | |     | |  | | | | |  \| \___ \
-# |  _| | |_| | |\  | |___  | |  | | |_| | |\  |___) |
-# |_|    \___/|_| \_|\____| |_| |___\___/|_| \_|____/
 
 
 async def react_message(
