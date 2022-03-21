@@ -2,6 +2,7 @@ import re
 
 import discord
 import requests
+from discord.utils import get
 
 import logger
 
@@ -131,7 +132,19 @@ def get_images(links: list[str]) -> list[str]:
     return images
 
 
-def parse_time(time: str) -> float or None:
+def parse_time(time: str) -> int or None:
+    """
+    Parses a timestamp string to it's actual int value in seconds.
+
+    Parameters
+    ----------
+    time: str
+    The timestamp.
+
+    Returns
+    -------
+    int: value in seconds.
+    """
     duration = int(re.sub(r"\D", "", time, "g"))
     unit = re.sub(r"\d", "", time, "g")
 
@@ -148,18 +161,70 @@ def parse_time(time: str) -> float or None:
 
 
 def parse_piped_list(items: list[str]) -> list[str]:
-    """Join all strings from a list and splits it by the pipes."""
-    return " ".join(items).split(" | ")
+    """Join all strings from a list and splits it by pipes."""
+    return [item for item in " ".join(items).split(" | ") if not item.isspace()]
 
 
-def extract_options_from_list(items: list[str], target_options: list[str]) -> dict[str, list[any]]:
+def parse_settings_list(
+    items: list[str], target_settings: list[str]
+) -> dict[str, str] or None:
     """
-    Extract a list of $-preceded options from a list of strings.
+    Extract a list of $-preceded settings from a list of strings.
 
     Parameters
     ----------
     items: list[str]
         List of items to be extracted from.
-    target_options: dict[str, list[any]]
+    target_settings: list[str]
         List of option names. Each will be preceded by '$'.
+
+    Returns
+    -------
+    Union[dict[str, str]]: values for each option or None if an option is duplicated
     """
+    settings = {}
+    found_indexes = set()
+    target_settings = ["$" + opt for opt in target_settings]
+
+    for i, item in enumerate(items):
+        # settings can have the "$option=value" format
+        after_split = item.split("=", 1)
+
+        if item in items or after_split[0] in target_settings:
+            key, value = after_split if len(after_split) == 2 else (item, True)
+
+            if key in settings:
+                return None
+
+            settings[key] = value
+            found_indexes.add(i)
+
+    for i in found_indexes:
+        items.pop(i)
+
+    return settings
+
+
+def parse_role(role: str, ctx: discord.ext.commands.Context) -> discord.Role or None:
+    """
+    Find role with specified name in specified context.
+
+    Parameters
+    ----------
+    role: str
+    The role's name.
+    ctx: discord.ext.commands.Context
+    The context in which to search for the role.
+
+    Returns
+    -------
+    discord.Role: the actual role object, if found.
+    """
+    server = ctx.guild
+    server_roles = await server.fetch_roles()
+
+    return (
+        server.default_role
+        if role.lower() == "everyone"
+        else get(server_roles, name=role)
+    )
