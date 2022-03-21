@@ -162,7 +162,11 @@ def parse_time(time: str) -> int or None:
 
 def parse_piped_list(items: list[str]) -> list[str]:
     """Join all strings from a list and splits it by pipes."""
-    return [item for item in " ".join(items).split(" | ") if not item.isspace()]
+    return [
+        item.replace(" \\| ", " | ")
+        for item in " ".join(items).split(" | ")
+        if not item.isspace()
+    ]
 
 
 def parse_settings_list(
