@@ -1,4 +1,5 @@
 import re
+from typing import List, Union
 
 import discord
 import requests
@@ -67,24 +68,24 @@ VOCATIVES = [
 
 
 async def react_message(
-    message: discord.Message, emojis: str or list[str] = MESSAGE_EMOJI
+    message: discord.Message, emoji: Union[str, List[str]] = MESSAGE_EMOJI
 ) -> None:
-    if type(emojis) == "str":
-        emojis = [emojis]
+    emojis = [emoji] if type(emoji) == "str" else emoji
 
-    for emoji in emojis:
+    for em in emojis:
         try:
-            await message.add_reaction(emoji)
+            await message.add_reaction(em)
         except discord.HTTPException or discord.NotFound or discord.InvalidArgument:
-            logger.exception(f"Something happened while reacting {emoji}.", 2)
+            logger.exception(f"Something happened while reacting {em}.", 2)
         else:
-            logger.info(f"The reaction {emoji} was successfully added.", 2)
+            logger.info(f"The reaction {em} was successfully added.", 2)
 
 
-async def react_response(response: discord.Message, emojis: str or list[str]) -> None:
-    if type(emojis) == "str":
-        emojis = [emojis]
-    await react_message(response, [RESPONSE_EMOJI, *emojis])
+async def react_response(
+    response: discord.Message, emoji: str or list[str] = RESPONSE_EMOJI
+) -> None:
+    emojis = [emoji] if type(emoji) == "str" else emoji
+    await react_message(response, emojis)
 
 
 def get_images(links: list[str]) -> list[str]:
