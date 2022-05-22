@@ -50,18 +50,22 @@ async def on_ready():
 async def on_member_join(member):
     logger.info(f"{member.display_name} has joined the server.")
 
-    roles = db.find_one({"description": "onMemberJoinRoles"})["roles"]
-    roles = [role for role in [get(member.guild.roles, name=r) for r in roles] if role]
+    roles = obj["roles"] if (obj := db.find_one({"description": "onMemberJoinRoles"})) else []
+    roles = [role for r in roles if (role := utils.parse_role(r, member.guild))]
 
     if roles:
         await member.add_roles(roles if len(roles) > 1 else roles[0])
 
     channel = get(member.guild.text_channels, name=utils.WELCOME_CHANNEL)
-    response = await channel.send(
-        f"{member.mention} Seja bem vindo(a), meu {random.choice(utils.VOCATIVES)}!"
-    )
-    logger.info("The welcome message was successfully sent.")
-    await utils.react_response(response)
+
+    if channel:
+        response = await channel.send(
+            f"{member.mention} Seja bem vindo(a), meu {random.choice(utils.VOCATIVES)}!"
+        )
+        await utils.react_response(response)
+        logger.info("The welcome message was successfully sent.")
+    else:
+        logger.error("The welcome message was not successfully sent because no welcome channel exists.")
 
 
 @bot.event
@@ -104,8 +108,8 @@ async def on_message(message):
 
 
 @bot.command(
-    brief="Desenvolvedor do bot e repositório no GitHub.",
     aliases=["dev"],
+    brief="Desenvolvedor do bot e repositório no GitHub.",
 )
 async def credits(ctx):
     await ctx.trigger_typing()
@@ -146,13 +150,13 @@ async def refresh(ctx):
     brief="Limpa o chat,",
     help="Exclui todas os comandos e mensagens do bot que foram enviadas nos últimos 10 minutos --- exceto mensagem 'importantes', como abertura de projetos.",
 )
-async def clear(ctx, delta: str = "10min"):
+async def clear(ctx, delta="10min"):
     await ctx.trigger_typing()
     logger.info(f"`>clear` command called on the {ctx.channel.name} channel.")
 
     await utils.react_message(ctx.message, "⚰️")
 
-    delta = timedelta(seconds=utils.parse_time(delta))
+    delta = timedelta(seconds=utils.parse_time(delta) or -1)
     timestamp = ctx.message.created_at - delta
 
     important_regexes = [
@@ -166,7 +170,7 @@ async def clear(ctx, delta: str = "10min"):
         is_me = message.author == bot.user
         is_important = (
             [
-                match
+                bool(match)
                 for match in [
                     search(regex, message.content) for regex in important_regexes
                 ]

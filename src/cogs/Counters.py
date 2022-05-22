@@ -25,7 +25,7 @@ class Counters(commands.Cog):
         )
 
     # example of a command that uses a counter that increses each time it is called
-    @commands.command(brief="", help="", aliases=[])
+    @commands.command(brief="Uma demonstração de amor!", help="Testa aí.")
     async def júlio(self, ctx):
         await ctx.trigger_typing()
         logger.info("`>júlio` command called.")

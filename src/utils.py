@@ -1,5 +1,4 @@
 import re
-from typing import List, Union
 
 import discord
 import requests
@@ -68,7 +67,7 @@ VOCATIVES = [
 
 
 async def react_message(
-    message: discord.Message, emoji: str | List[str] = MESSAGE_EMOJI
+    message: discord.Message, emoji: str | list[str] = MESSAGE_EMOJI
 ) -> None:
     emojis = [emoji] if type(emoji) == "str" else emoji
 
@@ -202,7 +201,7 @@ def parse_settings_list(
     return settings
 
 
-async def parse_role(role: str, ctx) -> discord.Role | None:
+async def parse_role(role: str, server: discord.Guild) -> discord.Role | None:
     """
     Find role with specified name in specified context.
 
@@ -217,9 +216,7 @@ async def parse_role(role: str, ctx) -> discord.Role | None:
     -------
     discord.Role: the actual role object, if found.
     """
-    server = ctx.guild
     server_roles = await server.fetch_roles()
-
     return (
         server.default_role
         if role.lower() == "everyone"

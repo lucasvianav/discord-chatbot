@@ -39,7 +39,7 @@ class Decisions(commands.Cog):
         response = await ctx.reply(random.randint(1, number))
         await utils.react_response(response)
 
-    @commands.command(brief="Cara ou coroa?", aliases=["coinFLIP"])
+    @commands.command(aliases=["coinFLIP"], brief="Cara ou coroa?")
     async def coinflip(self, ctx):
         """Throw a coin."""
         await ctx.trigger_typing()
@@ -161,7 +161,7 @@ class Decisions(commands.Cog):
 
                 return
 
-            mention = await utils.parse_role(settings["mention"], ctx)
+            mention = await utils.parse_role(settings["mention"], ctx.guild)
 
             # no role found
             if not mention:

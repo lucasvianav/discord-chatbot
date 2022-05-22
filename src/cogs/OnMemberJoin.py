@@ -21,13 +21,6 @@ class onMemberJoin(commands.Cog):
 
     # list all roles that'll be added to new members when they join the server
     @commands.command(
-        brief="Lista todos os cargos de novos membros.",
-        help=(
-            "Esse comando lista todos os cargos que serão automaticamente "
-            "adicionados a novos membros no momento que eles entrarem no servidor.\n\n"
-            "Você pode incluir ou remover cargos com os comandos `>addRolesOMJ` "
-            "e `>removeRolesOMJ`, respectivamente."
-        ),
         aliases=[
             "listAutoRoles",
             "onMemberJoinRoles",
@@ -36,6 +29,13 @@ class onMemberJoin(commands.Cog):
             "listOnMemberJoinRoles",
             "listrolesomj",
         ],
+        brief="Lista todos os cargos de novos membros.",
+        help=(
+            "Esse comando lista todos os cargos que serão automaticamente "
+            "adicionados a novos membros no momento que eles entrarem no servidor.\n\n"
+            "Você pode incluir ou remover cargos com os comandos `>addRolesOMJ` "
+            "e `>removeRolesOMJ`, respectivamente."
+        ),
     )
     async def listRolesOMJ(self, ctx):
         await ctx.trigger_typing()
@@ -61,6 +61,13 @@ class onMemberJoin(commands.Cog):
 
     # add a new role to be added to new members when they join the server
     @commands.command(
+        aliases=[
+            "addonmemberjoinroles",
+            "addautoroles",
+            "addAutoRoles",
+            "addOnMemberJoinRoles",
+            "addrolesomj",
+        ],
         brief="Inclui cargos para novos membros.",
         help=(
             "Esse comando só pode ser utilizado por membros da Diretoria e "
@@ -71,13 +78,6 @@ class onMemberJoin(commands.Cog):
             '(caso um dos cargos possua " | " em seu nome, coloque-o como " \\| ").\n'
             'e.g.: ">addRolesOMJ NOME_CARGO_1 | NOME_CARGO_2 | NOME_CARGO_3"'
         ),
-        aliases=[
-            "addonmemberjoinroles",
-            "addautoroles",
-            "addAutoRoles",
-            "addOnMemberJoinRoles",
-            "addrolesomj",
-        ],
     )
     async def addRolesOMJ(self, ctx, *roles):
         await ctx.trigger_typing()
@@ -134,6 +134,13 @@ class onMemberJoin(commands.Cog):
 
     # remove a role from the list to be added to new members when they join the server
     @commands.command(
+        aliases=[
+            "removeonmemberjoinroles",
+            "removeautoroles",
+            "removeAutoRoles",
+            "removeOnMemberJoinRoles",
+            "removerolesomj",
+        ],
         brief="Remove cargos para novos membros.",
         help=(
             "Esse comando só pode ser utilizado por membros da Diretoria e serve "
@@ -147,13 +154,6 @@ class onMemberJoin(commands.Cog):
             'que entrar no servidor).\ne.g.: ">removeRolesOMJ NOME_CARGO_1 | '
             'NOME_CARGO_2 | NOME_CARGO_3"'
         ),
-        aliases=[
-            "removeonmemberjoinroles",
-            "removeautoroles",
-            "removeAutoRoles",
-            "removeOnMemberJoinRoles",
-            "removerolesomj",
-        ],
     )
     async def removeRolesOMJ(self, ctx, *roles):
         await ctx.trigger_typing()

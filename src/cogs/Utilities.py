@@ -88,7 +88,7 @@ class Utilities(commands.Cog):
         server_roles = await server.fetch_roles()
 
         if mention_txt:
-            mention = await utils.parse_role(mention_txt, ctx)
+            mention = await utils.parse_role(mention_txt, ctx.guild)
 
             if not mention:
                 response = await ctx.send(f"O cargo `{mention_txt}` não existe.")
@@ -398,7 +398,7 @@ class Utilities(commands.Cog):
         if print_list:
             argv = argv.replace(" $list", "")
 
-        role = await utils.parse_role(argv, ctx)
+        role = await utils.parse_role(argv, ctx.guild)
 
         if not argv:
             response = "É necessário fornecer um cargo ao comando. Em caso de dúvidas, envie `>help kick`."
@@ -495,7 +495,7 @@ class Utilities(commands.Cog):
         if mention:
             argv = argv.replace(" $mention", "")
 
-        role = await utils.parse_role(argv, ctx)
+        role = await utils.parse_role(argv, ctx.guild)
 
         if not argv:
             response = "É necessário fornecer um cargo ao comando. Em caso de dúvidas, envie `>help members`."
