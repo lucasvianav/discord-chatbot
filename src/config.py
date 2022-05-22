@@ -3,7 +3,7 @@ from json import dump
 
 import gspread
 from dotenv import load_dotenv
-from oauth2client.service_account import ServiceAccountCredentials
+from google.oauth2.service_account import Credentials
 
 # Gets tokens and keys
 if os.path.isfile("./.env"):
@@ -64,15 +64,13 @@ if not os.path.isfile("./credentials.json"):
         dump(credentials, f, indent=4)
 
 # Use creds to create a client to interact with the Google Drive API
-scope = [
+scopes = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive",
 ]
-credentials = ServiceAccountCredentials.from_json_keyfile_name(
-    "credentials.json", scope
-)
+credentials = Credentials.from_service_account_file("credentials.json", scopes=scopes)
 client = gspread.authorize(credentials)
 
 # Gets the spreadsheet's info (commands and triggers)
