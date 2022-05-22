@@ -50,7 +50,11 @@ async def on_ready():
 async def on_member_join(member):
     logger.info(f"{member.display_name} has joined the server.")
 
-    roles = obj["roles"] if (obj := db.find_one({"description": "onMemberJoinRoles"})) else []
+    roles = (
+        obj["roles"]
+        if (obj := db.find_one({"description": "onMemberJoinRoles"}))
+        else []
+    )
     roles = [role for r in roles if (role := utils.parse_role(r, member.guild))]
 
     if roles:
@@ -65,7 +69,9 @@ async def on_member_join(member):
         await utils.react_response(response)
         logger.info("The welcome message was successfully sent.")
     else:
-        logger.error("The welcome message was not successfully sent because no welcome channel exists.")
+        logger.error(
+            "The welcome message was not successfully sent because no welcome channel exists."
+        )
 
 
 @bot.event
@@ -153,8 +159,7 @@ async def refresh(ctx):
 async def clear(ctx, delta="10min"):
     await ctx.trigger_typing()
     logger.info(f"`>clear` command called on the {ctx.channel.name} channel.")
-
-    await utils.react_message(ctx.message, "⚰️")
+    await utils.react_message(ctx.message, "⚰")
 
     delta = timedelta(seconds=utils.parse_time(delta) or -1)
     timestamp = ctx.message.created_at - delta
@@ -216,11 +221,11 @@ async def send(ctx, *argv):
     await utils.react_message(ctx.message, ["🆗", "📢"])
 
     argv = " ".join(argv).split(" @ ")
-    resp = ""
+    response = ""
 
     # checks if arguments are valid
     if len(argv) != 2 or not search('[^"]', argv[0]) or not search('[^"]', argv[1]):
-        resp = 'Os argumentos passados são inválidos. Para mais informações, envie ">help send".'
+        response = 'Os argumentos passados são inválidos. Para mais informações, envie ">help send".'
     else:
         message = argv[0].replace('"', "").replace("\\@", "@")
         channel_ref = argv[1].replace('"', "").replace("\\@", "@")
@@ -235,7 +240,7 @@ async def send(ctx, *argv):
 
             # checks permissions
             if not perms_me.send_messages or not perms_me.read_messages:
-                resp = (
+                response = (
                     "Infelizmente eu não tenho permissão para mandar/visualizar"
                     + f" mensagens no {channel.mention}... *O que será que eles"
                     + " têm a esconder, hein?!*"
@@ -245,15 +250,15 @@ async def send(ctx, *argv):
             elif perms_user.send_messages and perms_user.read_messages:
                 message = await channel.send(message)
                 await utils.react_message(message, ["🤠", "📢"])
-                resp = f"A mensagem foi enviada com sucesso no {channel.mention}."
+                response = f"A mensagem foi enviada com sucesso no {channel.mention}."
 
             else:
-                resp = f"Infelizmente você não tem permissão para mandar mensagens {channel.mention}"
+                response = f"Infelizmente você não tem permissão para mandar mensagens {channel.mention}"
         else:
-            resp = f"Infelizmente o canal `{channel_ref}` não foi encontrado."
+            response = f"Infelizmente o canal `{channel_ref}` não foi encontrado."
 
-    resp = await ctx.reply(resp)
-    await utils.react_response(resp)
+    response = await ctx.reply(response)
+    await utils.react_response(response)
 
 
 # Refreshes the sheets' commands and triggers every 15 minutes
@@ -265,6 +270,6 @@ async def periodic_refresh():
 
 
 if __name__ == "__main__":
-    for filename in os.listdir("./cogs"):  # loads all cogs
+    for filename in [f for f in os.listdir("./src/cogs") if f.endswith(".py")]:
         bot.load_extension(f'cogs.{filename.replace(".py","")}')
     bot.run(config.DISCORD_TOKEN)

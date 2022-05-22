@@ -22,13 +22,13 @@ class onMemberJoin(commands.Cog):
     # list all roles that'll be added to new members when they join the server
     @commands.command(
         name="onMemberJoinRoles?",
-        aliases=["onMemberJoinRoles"],
+        aliases=["onMemberJoinRoles", "OMJroles", "OMJroles?"],
         brief="Lista todos os cargos de novos membros.",
         help=(
             "Esse comando lista todos os cargos que serão automaticamente "
             "adicionados a novos membros no momento que eles entrarem no servidor.\n\n"
             "Você pode incluir, remover ou substituir cargos com os comandos `>onMemberJoinRoles+`, "
-            "`>onMemberJoinRoles+` e `>onMemberJoinRoles!`, respectivamente."
+            "`>onMemberJoinRoles-` e `>onMemberJoinRoles!`, respectivamente."
         ),
     )
     async def listRoles(self, ctx):
@@ -43,19 +43,19 @@ class onMemberJoin(commands.Cog):
             )
             if self.roles
             else "No momento, nenhum cargo será dado automaticamente a quem entrar no servidor."
+        ) + (
+            "\n\nNão se esqueça, você pode você pode incluir, remover ou "
+            "substituir cargos para serem dados automaticamente a novos membros"
+            " com os comandos `>onMemberJoinRoles+`, `>onMemberJoinRoles-` e "
+            "`>onMemberJoinRoles!`, respectivamente."
         )
-        response += (
-            "\n\nNão se esqueça, você pode adicionar ou remover cargos para "
-            "serem dados automaticamente a novos membros com os comandos "
-            "`>addRolesOMJ` e `>removeRolesOMJ`, respectivamente."
-        )
-
         response = await ctx.send(response)
         await utils.react_response(response)
 
     # add a new role to be added to new members when they join the server
     @commands.command(
         name="onMemberJoinRoles+",
+        aliases=["OMJroles+"],
         brief="Inclui cargos para novos membros.",
         help=(
             "Esse comando só pode ser utilizado por membros da Diretoria e "
@@ -69,9 +69,13 @@ class onMemberJoin(commands.Cog):
     )
     async def addRoles(self, ctx, *roles):
         await ctx.trigger_typing()
-        logger.info("`>addRolesOMJ` command called.")
+        logger.info("`>onMemberJoinRoles+` command called.")
 
-        roles = utils.parse_piped_list(roles)
+        roles = [
+            role.name
+            for r in utils.parse_piped_list(roles)
+            if (role := await utils.parse_role(r, ctx.guild))
+        ]
 
         if not utils.in_diretoria(ctx.author) or not roles:
             await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
@@ -79,7 +83,7 @@ class onMemberJoin(commands.Cog):
             response = await ctx.send(
                 "Apenas membros da diretoria podem utilizar esse comando."
                 if roles
-                else 'Nenhum nome de cargo foi passado. Para mais informações, envie ">help addRolesOMJ".'
+                else 'Nenhum nome de cargo foi passado. Para mais informações, envie `>help onMemberJoinRoles+`.'
             )
             await utils.react_response(response)
 
@@ -123,6 +127,7 @@ class onMemberJoin(commands.Cog):
     # remove a role from the list to be added to new members when they join the server
     @commands.command(
         name="onMemberJoinRoles-",
+        aliases=["OMJroles-"],
         brief="Remove cargos para novos membros.",
         help=(
             "Esse comando só pode ser utilizado por membros da Diretoria e serve "
@@ -139,7 +144,7 @@ class onMemberJoin(commands.Cog):
     )
     async def removeRoles(self, ctx, *roles):
         await ctx.trigger_typing()
-        logger.info("`>removeRolesOMJ` command called.")
+        logger.info("`>onMemberJoinRoles-` command called.")
 
         if not utils.in_diretoria(ctx.author):
             await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
@@ -187,6 +192,7 @@ class onMemberJoin(commands.Cog):
     # substitute the roles to be added to new members when they join the server
     @commands.command(
         name="onMemberJoinRoles!",
+        aliases=["OMJroles!"],
         brief="Substitui os cargos para novos membros.",
         help=(
             "Esse comando só pode ser utilizado por membros da Diretoria e "
@@ -202,14 +208,16 @@ class onMemberJoin(commands.Cog):
         await ctx.trigger_typing()
         logger.info("`>onMemberJoinRoles!` command called.")
 
-        roles = utils.parse_piped_list(roles)
+        roles = [
+            role.name
+            for r in utils.parse_piped_list(roles)
+            if (role := await utils.parse_role(r, ctx.guild))
+        ]
 
-        if not utils.in_diretoria(ctx.author) or not roles:
+        if not utils.in_diretoria(ctx.author):
             await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
             response = await ctx.send(
                 "Apenas membros da diretoria podem utilizar esse comando."
-                if roles
-                else 'Nenhum nome de cargo foi passado. Para mais informações, envie ">help addRolesOMJ".'
             )
             await utils.react_response(response)
             return
@@ -233,7 +241,11 @@ class onMemberJoin(commands.Cog):
                     f"entrarem no servidor foi substituída por `{', '.join(roles)}`."
                 )
                 if roles
-                else ""
+                else (
+                    "A lista de cargos que serão dados a novos membros que "
+                    "entrarem no servidor foi esvaziada, mas nenhum cargo novo"
+                    " foi adicionado."
+                )
             )
             + ("\n\n" if roles and invalid_roles else "")
             + (

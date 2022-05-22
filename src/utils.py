@@ -74,7 +74,7 @@ async def react_message(
     for em in emojis:
         try:
             await message.add_reaction(em)
-        except discord.HTTPException or discord.NotFound or discord.InvalidArgument:
+        except Exception:
             logger.exception(f"Something happened while reacting {em}.", 2)
         else:
             logger.info(f"The reaction {em} was successfully added.", 2)

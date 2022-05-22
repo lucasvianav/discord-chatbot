@@ -38,7 +38,7 @@ class Counters(commands.Cog):
 
         response = await ctx.send(
             "**Júlio ||Calandrin||, você é incrível e nós te amamos!** O "
-            + "Júlio já foi apreciado `{self.counters['júlio']}` vezes."
+            + f"Júlio já foi apreciado `{self.counters['júlio']}` vezes."
         )
 
         await utils.react_response(response, "❤️")
