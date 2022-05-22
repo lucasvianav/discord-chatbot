@@ -68,7 +68,7 @@ VOCATIVES = [
 
 
 async def react_message(
-    message: discord.Message, emoji: Union[str, List[str]] = MESSAGE_EMOJI
+    message: discord.Message, emoji: str | List[str] = MESSAGE_EMOJI
 ) -> None:
     emojis = [emoji] if type(emoji) == "str" else emoji
 
@@ -82,9 +82,9 @@ async def react_message(
 
 
 async def react_response(
-    response: discord.Message, emoji: str or list[str] = RESPONSE_EMOJI
+    response: discord.Message, emoji: str | list[str] = RESPONSE_EMOJI
 ) -> None:
-    emojis = [emoji] if type(emoji) == "str" else emoji
+    emojis = [emoji] if type(emoji) is str else emoji
     await react_message(response, emojis)
 
 
@@ -110,7 +110,7 @@ def get_images(links: list[str]) -> list[str]:
 
         try:
             r = requests.get(url)
-        except requests.ConnectionError or requests.HTTPError or requests.Timout or requests.TooManyRedirects:
+        except requests.ConnectionError or requests.HTTPError or requests.Timeout or requests.TooManyRedirects:
             logger.exception(f"There was an error with the image link: {url}", 2)
         else:
             filename = f"./images/tmp-{i}.png"
@@ -120,15 +120,14 @@ def get_images(links: list[str]) -> list[str]:
                 f.write(r.content)
 
             logger.info(f"The image {i} was successfully downloaded.", 2)
-        finally:
             r.close()
 
     return images
 
 
-def parse_time(time: str) -> int or None:
+def parse_time(time: str) -> int | None:
     """
-    Parses a timestamp string to it's actual int value in seconds.
+    Parse a timestamp string to it's actual int value in seconds.
 
     Parameters
     ----------
@@ -139,8 +138,8 @@ def parse_time(time: str) -> int or None:
     -------
     int: value in seconds.
     """
-    duration = int(re.sub(r"\D", "", time, "g"))
-    unit = re.sub(r"\d", "", time, "g")
+    duration = int(re.sub(r"\D", "", time))
+    unit = re.sub(r"\d", "", time)
 
     if ("minutes").startswith(unit):
         duration *= 60
@@ -154,7 +153,7 @@ def parse_time(time: str) -> int or None:
     return duration
 
 
-def parse_piped_list(items: list[str]) -> list[str]:
+def parse_piped_list(items: list[str] | tuple[str]) -> list[str]:
     """Join all strings from a list and splits it by pipes."""
     return [
         item.replace(" \\| ", " | ")
@@ -165,7 +164,7 @@ def parse_piped_list(items: list[str]) -> list[str]:
 
 def parse_settings_list(
     items: list[str], target_settings: list[str]
-) -> dict[str, str] or None:
+) -> dict[str, str] | None:
     """
     Extract a list of $-preceded settings from a list of strings.
 
@@ -178,7 +177,7 @@ def parse_settings_list(
 
     Returns
     -------
-    Union[dict[str, str]]: values for each option or None if an option is duplicated
+    dict[str, str] | None: values for each option or None if an option is duplicated
     """
     settings = {}
     found_indexes = set()
@@ -203,14 +202,14 @@ def parse_settings_list(
     return settings
 
 
-def parse_role(role: str, ctx: discord.ext.commands.Context) -> discord.Role or None:
+async def parse_role(role: str, ctx) -> discord.Role | None:
     """
     Find role with specified name in specified context.
 
     Parameters
     ----------
     role: str
-    The role's name.
+    The role's name or mention.
     ctx: discord.ext.commands.Context
     The context in which to search for the role.
 
@@ -224,5 +223,15 @@ def parse_role(role: str, ctx: discord.ext.commands.Context) -> discord.Role or 
     return (
         server.default_role
         if role.lower() == "everyone"
-        else get(server_roles, name=role)
+        else (get(server_roles, name=role) or get(server_roles, mention=role))
     )
+
+
+def in_diretoria(author: discord.Member) -> bool:
+    """Determine if a member belongs to the directory."""
+    return "Diretoria" in [role.name for role in author.roles]
+
+
+def get_member_name(member) -> str:
+    """Get the member's name and nickname."""
+    return f"`{member.nick} ({member.name})`" if member.nick else f"`{member.name}`"

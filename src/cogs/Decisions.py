@@ -69,7 +69,7 @@ class Decisions(commands.Cog):
 
         chosen = random.choice(utils.parse_piped_list(options))
         response = await ctx.reply(chosen)
-        await utils.react_response(response, emojiList="❕")
+        await utils.react_response(response, "❕")
 
     @commands.command(
         aliases=["votação", "votacao", "vote", "enquete"],
@@ -161,7 +161,7 @@ class Decisions(commands.Cog):
 
                 return
 
-            mention = utils.parse_role(settings["mention"], ctx)
+            mention = await utils.parse_role(settings["mention"], ctx)
 
             # no role found
             if not mention:
@@ -174,7 +174,7 @@ class Decisions(commands.Cog):
             if settings["mention"].lower() != "everyone":
                 mention = mention.mention
 
-            mention += " "
+            mention = f"{mention} "
 
         available = utils.AVAILABLE_REACTIONS.copy()
         shuffle(available)
@@ -182,6 +182,11 @@ class Decisions(commands.Cog):
         settings["title"] = f"**{settings['title']}**" if "title" in settings else ""
         duration = utils.parse_time(settings["duration"])
         reactions = {options[i]: available[i] for i in range(len(options))}
+
+        if not duration:
+            response = await ctx.send("Essa duração é inválida.")
+            await utils.react_response(response)
+            return
 
         response = (
             f'`[VOTAÇÃO]`\n\n{mention}{settings["title"]}'
@@ -199,7 +204,7 @@ class Decisions(commands.Cog):
         )
 
         response = await ctx.send(response)
-        await utils.react_message(response, reactions.values())
+        await utils.react_message(response, list(reactions.values()))
 
         # Sleeps for the duration
         logger.info(
@@ -239,13 +244,13 @@ class Decisions(commands.Cog):
                 }
             )
 
-        max_voters = max(len(item["people"] for item in result))
+        max_voters = max([len(item["people"]) for item in result])
         winners = [item for item in result if len(item["people"]) == max_voters]
 
+        winner_reactions = [item["emoji"] for item in winners]
         winners = ", ".join(
             ["**" + item["item"] + "** (" + item["emoji"] + ")" for item in winners]
         )
-        winner_reactions = [item["emoji"] for item in winners]
 
         response = (
             f'`[VOTAÇÃO]`\n\n{mention}{settings["title"]}'

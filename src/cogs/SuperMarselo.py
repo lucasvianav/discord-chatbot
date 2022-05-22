@@ -109,7 +109,7 @@ class SuperMarselo(commands.Cog):
                     )
                 )
 
-                logger.info("Waiting for the website to load...")
+                logger.info("Waiting for the website to load...", 2)
 
                 driver.find_element_by_xpath('//input[@id="nickname-input"]').send_keys(
                     "A Voz da SA-SEL"
@@ -118,7 +118,7 @@ class SuperMarselo(commands.Cog):
                     '//button[contains(text(), "Create Room") and contains(@type, "submit")]'
                 ).click()
 
-                logger.info("Setting up the game...")
+                logger.info("Setting up the game...", 2)
 
                 waiter(driver, 10, poll_frequency=0.1).until(
                     presence((By.XPATH, '//span[contains(text(), "Set up a game")]'))
@@ -132,7 +132,7 @@ class SuperMarselo(commands.Cog):
                     '//button[contains(text(), "Start New Game")]'
                 ).click()
 
-                logger.info("Waiting for the room to be created...")
+                logger.info("Waiting for the room to be created...", 2)
 
                 waiter(driver, 10, poll_frequency=0.1).until(
                     presence(

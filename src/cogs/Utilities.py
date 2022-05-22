@@ -5,7 +5,9 @@ from re import search
 import discord
 from discord.ext import commands
 from discord.utils import get
-from util import *
+
+import logger
+import utils
 
 
 class Utilities(commands.Cog):
@@ -14,334 +16,506 @@ class Utilities(commands.Cog):
 
     # sends a poll-like message in which user can react to receive a new role
     @commands.command(
-        aliases=['openProjects', 'openproject', 'openprojects', 'createProject', 'createProjects', 'createRole', 'createRoles', 'abrirProjeto', 'createrole', 'createroles', 'abrirprojeto', 'abrirProjetos', 'criarProjeto', 'criarprojeto', 'criarprojetos', 'criarProjetos', 'criarCargo', 'criarCargos', 'criarcargo', 'criarcargos'],
-        brief='Auxilia na abertura de um projeto.',
-        help='O self.bot vai enviar uma mensagem convidando os membros a adicionarem reações para entrarem no projeto. Ele vai esperar 20 minutos e depois vai criar um cargo para o projeto e adicioná-lo a todos que reagiram.\n\nÉ possível abrir no mínimo 1 e no máximo 9 projetos por vez, separando-os por " | ".\ne.g.: ">openProjects Moletons da Elétrica | Kit Bixo | RPG da SA-SEL"\n\nExiste também um parâmetro/argumento opcional que pode ser passado para o comando: se você quiser que eu marque algum cargo, basta adicionar o parâmetro "$mention=" seguido do nome do cargo a ser marcado. O nome do cargo a ser marcado deve estar exatamente igual ao nome do cargo no Discord e esse parâmetro deve ser enviado na primeira ou na última posição da lista de projetos.\nO parâmetro é opcional e, se não for fornecido (ou se o cargo fornecido não for encontrado), nenhum cargo será marcado.\nPor exemplo, se você incluir "$mention=everyone", eu vou marcar @everyone; se você incluir "$mention=Moletons da Elétrica" ou "$mention=Moletons", eu vou marcar "@Moletons da Elétrica" ou "@Moletons", respectivamente.\ne.g.: ">openProjects Moletons da Elétrica | Kit Bixo | RPG da SA-SEL | $mention=everyone", ">openProjects $mention=everyone | Moletons da Elétrica | Kit Bixo | RPG da SA-SEL"\n\nVale ressaltar que apenas membros da Diretoria podem abrir projetos.'
+        aliases=[
+            "openProjects",
+            "createRole",
+            "createRoles",
+            "abrirProjeto",
+            "abrirProjetos",
+            "criarCargo",
+            "criarCargos",
+        ],
+        brief="Auxilia na abertura de um projeto.",
+        help=(
+            "O self.bot vai enviar uma mensagem convidando os membros a "
+            "adicionarem reações para entrarem no projeto. Ele vai esperar 20 "
+            "minutos e depois vai criar um cargo para o projeto e adicioná-lo a"
+            " todos que reagiram.\n\nÉ possível abrir no mínimo 1 e no máximo 9 "
+            'projetos por vez, separando-os por " | ".\ne.g.: ">openProjects '
+            'Moletons da Elétrica | Kit Bixo | RPG da SA-SEL"\n\nExiste também '
+            "um parâmetro/argumento opcional que pode ser passado para o "
+            "comando: se você quiser que eu marque algum cargo, basta "
+            'adicionar o parâmetro "$mention=" seguido do nome do cargo a ser '
+            "marcado. O nome do cargo a ser marcado deve estar exatamente igual "
+            "ao nome do cargo no Discord e esse parâmetro deve ser enviado na "
+            "primeira ou na última posição da lista de projetos.\nO parâmetro "
+            "é opcional e, se não for fornecido (ou se o cargo fornecido não "
+            "for encontrado), nenhum cargo será marcado.\nPor exemplo, se você "
+            'incluir "$mention=everyone", eu vou marcar @everyone; se você '
+            'incluir "$mention=Moletons da Elétrica" ou "$mention=Moletons", '
+            'eu vou marcar "@Moletons da Elétrica" ou "@Moletons", '
+            'respectivamente.\ne.g.: ">openProjects Moletons da Elétrica | Kit '
+            'Bixo | RPG da SA-SEL | $mention=everyone", ">openProjects '
+            "$mention=everyone | Moletons da Elétrica | Kit Bixo | RPG da "
+            'SA-SEL"\n\nVale ressaltar que apenas membros da Diretoria podem '
+            "abrir projetos."
+        ),
     )
     async def openProject(self, ctx, *projects):
         await ctx.trigger_typing()
-
         logger.info("`>openProject` command called.")
 
-        projects = list(filter(lambda project: not search(r'^\s*$', project), ' '.join(projects).split(' | ')))
+        projects = utils.parse_piped_list(projects)
+        projects = [p for p in projects if not search(r"^\s*$", p)]
 
-        if projects[0].startswith('$mention='):
-            mention = projects[0].replace('$mention=', '')
-            projects.pop(0)
+        settings = utils.parse_settings_list(projects, ["mention"])
+        mention_txt, mention = settings["mention"] if settings else None, None
 
-        elif projects[-1].startswith('$mention='):
-            mention = projects[-1].replace('$mention=', '')
-            projects.pop(-1)
+        logger.info(f"The passed projects are: {''.join(projects)}.", 2)
 
-        else: mention = None
+        if (
+            utils.in_diretoria(ctx.author)
+            or not projects
+            or len(projects) > len(utils.AVAILABLE_REACTIONS)
+        ):
+            await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
 
-        print(f"   [**] The passed projects are: {''.join(projects)}.")
-
-        if 'Diretoria' not in [role.name for role in ctx.author.roles] or len(projects) > len(AVAILABLE_REACTIONS) or len(projects) == 0:
-            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
-
-            response = await ctx.send(('Apenas membros da diretoria podem abrir um projeto/criar um cargo.' if 'Diretoria' not in [role.name for role in ctx.author.roles] else f'É possível abrir no mínimo 1 e no máximo {len(AVAILABLE_REACTIONS)} projetos ao mesmo tempo.') + '\nEnvie `>help openProject` para mais informações.')
+            response = await ctx.send(
+                (
+                    "Apenas membros da diretoria podem abrir um projeto/criar um cargo."
+                    if not utils.in_diretoria(ctx.author)
+                    else f"É possível abrir no mínimo 1 e no máximo {len(utils.AVAILABLE_REACTIONS)} projetos ao mesmo tempo."
+                )
+                + "\nEnvie `>help openProject` para mais informações."
+            )
             await utils.react_response(response)
 
             return
 
-        await utils.react_message(ctx.message, ['🔑', '🚪'])
+        await utils.react_message(ctx.message, ["🔑", "🚪"])
 
         server = ctx.guild
-        serverRoles = await server.fetch_roles()
+        server_roles = await server.fetch_roles()
 
-        if mention:
-            mentionText = mention
-            mention = server.default_role if mention.lower() == 'everyone' else get(serverRoles, name=mention)
+        if mention_txt:
+            mention = await utils.parse_role(mention_txt, ctx)
 
             if not mention:
-                response = await ctx.send(f'O cargo `{mentionText}` não existe.')
+                response = await ctx.send(f"O cargo `{mention_txt}` não existe.")
                 await utils.react_response(response)
                 return
+            elif mention_txt.lower() != "everyone":
+                mention = mention.mention
 
-            elif mentionText.lower() != 'everyone': mention = mention.mention
+        # sleep time in minutes
+        sleep_time_minutes = 20
+        sleep_time_hours = 12
 
-        # Sleep time in minutes
-        sleepTime_minutes = 20
-        sleepTime_hours = 12
+        reactions = {}  # { [project]: reaction }
+        projects_str = (
+            "`[ABERTURA DE PROJETOS]`\n\n"
+            f'{mention if mention_txt else ""}{" " if mention_txt else ""}'
+            "Reaja (nesta mensagem) com os respectivos emojis para "
+            "ser adicionado aos projetos/cargos a seguir.\n"
+        )
 
-        # Writes message
-        reactions = {}
-        projects_str = f'`[ABERTURA DE PROJETOS]`\n\n{mention if mention else ""}{" " if mention else ""}Reaja (nesta mensagem) com os respectivos emojis para ser adicionado aos projetos/cargos a seguir.\n'
+        # adds a reaction for each project
         for project in projects:
-            newReaction = random.choice(AVAILABLE_REACTIONS)
-            while newReaction in reactions.values(): newReaction = random.choice(AVAILABLE_REACTIONS)
+            new_reaction = random.choice(
+                [r for r in utils.AVAILABLE_REACTIONS if r not in reactions.values()]
+            )
+            projects_str += f"\n**{project}**: {new_reaction}"
+            reactions[project] = new_reaction
 
-            projects_str += f'\n**{project}**: {newReaction}'
-            reactions[project] = newReaction
-        response = projects_str + f'\n\nDaqui a __{sleepTime_minutes} minutos__, vou criar e adicionar os cargos a quem já reagiu. Depois disso, pelas próximas __{sleepTime_hours} horas__, vou continuar adicionando cargos a quem reagir, para caso alguém queira entrar no projeto depois :)'
+        response = projects_str + (
+            f"\n\nDaqui a __{sleep_time_minutes} "
+            "minutos__, vou criar e adicionar os cargos "
+            "a quem já reagiu. Depois disso, pelas "
+            f"próximas __{sleep_time_hours} horas__, vou "
+            "continuar adicionando cargos a quem reagir,"
+            " para caso alguém queira entrar no projeto "
+            "depois :)"
+        )
 
         response = await ctx.send(response)
-
         await utils.react_message(response, list(reactions.values()))
 
-        # Creates roles
-        print(f"   [**] The roles are being created.")
+        logger.info("The roles are being created.", 2)
         roles = {
-            reactions[project]: await server.create_role(
+            reactions[project]: get(server_roles, name=project)
+            or await server.create_role(
                 name=project,
                 permissions=discord.Permissions(3661376),
                 mentionable=True,
-                reason='Abertura de projeto.'
-            ) if project not in [role.name for role in serverRoles]
-            else list(filter(lambda role: project == role.name, serverRoles))[0]
+                reason="Abertura de projeto.",
+            )
             for project in projects
         }
-        print(f"   [**] The roles were successfully created: {', '.join([role.name for role in roles.values()])}.")
+        logger.info(
+            f"The roles were successfully created: {', '.join([role.name for role in roles.values()])}.",
+            2,
+        )
 
-        # Sleeps for $sleepTime_minutes
-        print(f"   [**] This routine will sleep for {sleepTime_minutes} minutes while it waits for users to react.")
-        await sleep(60 * sleepTime_minutes)
-        print('\n [*] The \'>openProject\' command is done sleeping.')
+        # Sleep for $sleep_time_minutes
+        logger.info(
+            f"This routine will sleep for {sleep_time_minutes} minutes while it waits for users to react.",
+            2,
+        )
+        await sleep(60 * sleep_time_minutes)
+        logger.info("The '>openProject' command is done sleeping.", 1)
 
-        print(f"   [**] Fetching message reactions.")
-        cached = await ctx.fetch_message(response.id)
-        print(f"   [**] Fetched message's id: {cached.id}")
+        logger.info("Fetching message reactions.", 2)
+        cached_msg = await ctx.fetch_message(response.id)
+        logger.info(f"Fetched message's id: {cached_msg.id}", 2)
 
-        members = {}
+        members = {}  # { [reaction_emoji]: members_in_project }
 
-        # Adds roles to users who reacted
-        await ctx.send('`[PROJETOS ABERTOS]`', delete_after=3600)
-        for reaction in cached.reactions:
-            if not reaction.emoji in reactions.values(): continue
+        def get_project_report(reaction: discord.Reaction) -> str:
+            """
+            Parameters
+            ----------
+            reaction (discord.Reaction): the reaction that represents the project.
+
+            Returns
+            -------
+            str: text listing that project's members.
+            """
+            return (
+                f"**Projeto**: {reaction.emoji} {roles[reaction.emoji].mention}"
+                f"\n**Integrantes** [{len(members[reaction.emoji])}]: "
+                f"{', '.join([member.mention for member in members[reaction.emoji]]) if members[reaction.emoji] else 'poxa, ninguém'}."
+            )
+
+        # add roles to users who reacted
+        await ctx.send("`[PROJETOS ABERTOS]`", delete_after=3600)
+        for reaction in cached_msg.reactions:
+            if reaction.emoji not in reactions.values():
+                continue
 
             await ctx.trigger_typing()
 
-            print(f"   [**] Fetching who reacted {reaction.emoji}.")
-            reactors = [await server.fetch_member(user.id) for user in filter(lambda member: not member.bot, await reaction.users().flatten())]
+            logger.info(f"Fetching who reacted {reaction.emoji}.", 2)
+            members_reacted = [
+                await server.fetch_member(user.id)
+                for user in [m for m in await reaction.users().flatten() if not m.bot]
+            ]
+            logger.info(f"Adding role {roles[reaction.emoji]} to members.", 2)
 
-            print(f"   [**] Adding role {roles[reaction.emoji]} to members.")
-            for member in reactors: await member.add_roles(roles[reaction.emoji])
+            for member in members_reacted:
+                await member.add_roles(roles[reaction.emoji])
+            logger.info(
+                f"{roles[reaction.emoji].name} was successfully created and added to the project's members.",
+                2,
+            )
 
-            print(f'   [**] {roles[reaction.emoji].name} was successfully created and added to the project\'s members.')
-            response = await ctx.send(f'**Projeto**: {roles[reaction.emoji].mention}\n**Integrantes** [{len(reactors)}]: {", ".join([member.mention for member in reactors]) if reactors else "poxa, ninguém"}.\n\nCargo criado com sucesso!', delete_after=3600)
+            members[reaction.emoji] = members_reacted
 
-            await utils.react_message(response, [reaction.emoji])
+            response = await ctx.send(
+                get_project_report(reaction) + "\n\nCargo criado com sucesso!",
+                delete_after=3600,
+            )
+            await utils.react_message(response, reaction.emoji)
 
-            members[reaction.emoji] = list(map(lambda e: e, reactors))
-
-        response = await cached.reply(f'{mention if mention else ""}{" " if mention else ""}Vale lembrar que se você não reagiu anteriormente e quer entrar no projeto, ainda dá tempo!\n\nQuaisquer pessoas que reajam à messagem de abertura dos projetos dentro das próximas **{sleepTime_hours} horas** receberão os devidos cargos.\n\nLink da mensagem para reagir: {cached.jump_url}', delete_after=3600)
+        response = await cached_msg.reply(
+            f"{mention if mention_txt else ''}{' ' if mention_txt else ''}Vale lembrar "
+            "que se você não reagiu anteriormente e quer entrar no projeto, "
+            "ainda dá tempo!\n\nQuaisquer pessoas que reajam à messagem de "
+            f"abertura dos projetos dentro das próximas **{sleep_time_hours} "
+            "horas** receberão os devidos cargos.\n\nLink da mensagem para "
+            f"reagir: {cached_msg.jump_url}",
+            delete_after=3600,
+        )
         await utils.react_response(response)
 
-        print(f"   [**] This routine will sleep {sleepTime_hours} hours while it monitors new reactions every hour.")
-
         # repeats process for the next sleepTime_hours
-        for i in range(sleepTime_hours):
-            # sleeps for an hour
-            await sleep(3600)
+        logger.info(
+            f"This routine will sleep {sleep_time_hours} hours while it monitors new reactions every hour.",
+            2,
+        )
+        for i in range(sleep_time_hours):
+            await sleep(3600)  # sleeps for an hour
 
-            print(f'\n [*] The \'>openProject\' has slept for {i+1} hours. Searching for new reactions...')
+            logger.info(
+                f"The '>openProject' has slept for {i+1} hours. Searching for new reactions...",
+                2,
+            )
 
             # fetches the message again
-            cached = await ctx.fetch_message(cached.id)
-            print(f"   [**] Fetched message's id: {cached.id}")
-
-            await cached.edit(content=f'{projects_str}\n\nAinda estarei monitorando essa mensagem por algum tempo, você tem mais `{sleepTime_hours-(i+1)} horas` para reagir.')
+            cached_msg = await ctx.fetch_message(cached_msg.id)
+            await cached_msg.edit(
+                content=f"{projects_str}\n\nAinda estarei "
+                "monitorando essa mensagem por algum tempo, "
+                f"você tem mais `{sleep_time_hours-(i+1)} "
+                "horas` para reagir."
+            )
 
             # adds the roles to every new member that reacted
-            for reaction in cached.reactions:
-                if not reaction.emoji in reactions.values(): continue
+            for reaction in cached_msg.reactions:
+                if reaction.emoji not in reactions.values():
+                    continue
 
-                reactors = [
-                    await server.fetch_member(user.id) for user in filter(
-                            lambda member: not member.bot and not roles[reaction.emoji].id in [role.id for role in member.roles],
-                            await reaction.users().flatten()
-                        )
+                members_reacted = [
+                    await server.fetch_member(user.id)
+                    for user in [
+                        m
+                        for m in await reaction.users().flatten()
+                        if not m.bot and not roles[reaction.emoji].id in m.roles
+                    ]
                 ]
-                members[reaction.emoji].extend(reactors)
 
-                print(f"   [**] Reactors: {', '.join([member.name for member in reactors])}.")
+                for member in members_reacted:
+                    await member.add_roles(roles[reaction.emoji])
 
-                for member in reactors: await member.add_roles(roles[reaction.emoji])
+                members[reaction.emoji].extend(members_reacted)
+                logger.info(
+                    f"Reactors: {', '.join([member.name for member in members_reacted])}.",
+                    2,
+                )
 
-        await cached.edit(content=f'{projects_str}\n\n**Não estou mais monitorando essa mensagem, portanto não adianta mais reagir!** Se quiser participar de um dos projetos, entre em contato com o(a) gerente ou diretor(a) responsável.')
+        await cached_msg.edit(
+            content=f"{projects_str}\n\n**Não estou mais "
+            "monitorando essa mensagem, portanto não adianta "
+            "mais reagir!** Se quiser participar de um dos "
+            "projetos, entre em contato com o(a) gerente ou "
+            "diretor(a) responsável."
+        )
 
-        await ctx.send('`[PROJETOS ABERTOS]`')
-        for reaction in cached.reactions:
-            breakpoint()
-            response = await ctx.send(f'**Projeto**: {roles[reaction.emoji].mention}\n**Integrantes** [{len(members[reaction.emoji])}]: {", ".join([member.mention for member in members[reaction.emoji]]) if members[reaction.emoji] else "poxa, ninguém"}.')
-            await utils.react_message(response, [reaction.emoji])
+        await ctx.send("`[PROJETOS ABERTOS]`")
+        for reaction in cached_msg.reactions:
+            response = await ctx.send(get_project_report(reaction))
+            await utils.react_message(response, reaction.emoji)
 
     # lists everybody that stays in the same voice channel as the author for at least 1min
     @commands.command(
-        aliases=['trackpresence', 'presença', 'registrarPresença', 'registrarpresença'],
-        brief='Registra presença de membros em reunião.',
-        help='Ajuda a registrar a presença de membros em uma reunião.\n\nAo enviar ">trackPresence $DURAÇÃO", o self.bot vai monitorar o canal de voz em que você se encontrava no momento em que enviou a mensagem por $DURAÇÃO minutos. Ao fim desse tempo, ele vai enviar uma mensagem com os nomes de todas as pessoas que estiveram no canal de voz durante.\ne.g.: ">trackPresence 30" vai registrar a presença por meia hora (30 minutos).\n\nOBS: A $DURAÇÃO deve ser um número inteiro entre 10 e 120 minutos e, caso não seja fornecida, o self.bot irá monitorar por uma hora (60 minutos).'
+        aliases=["trackpresence", "presença", "registrarPresença", "registrarpresença"],
+        brief="Registra presença de membros em reunião.",
+        help=(
+            "Ajuda a registrar a presença de membros em uma reunião.\n\nAo "
+            "enviar '>trackPresence $DURAÇÃO', o self.bot vai monitorar o canal"
+            " de voz em que você se encontrava no momento em que enviou a "
+            "mensagem por $DURAÇÃO minutos. Ao fim desse tempo, ele vai enviar "
+            "uma mensagem com os nomes de todas as pessoas que estiveram no "
+            "canal de voz durante.\ne.g.: '>trackPresence 30' vai registrar a "
+            "presença por meia hora (30 minutos).\n\nOBS: A $DURAÇÃO deve ser "
+            "um número inteiro entre 10 e 120 minutos e, caso não seja "
+            "fornecida, o self.bot irá monitorar por uma hora (60 minutos)."
+        ),
     )
-    async def trackPresence(self, ctx, duration='60'):
+    async def trackPresence(self, ctx, duration="60"):
         await ctx.trigger_typing()
 
-        voiceChannel = ctx.author.voice.channel if ctx.author.voice else None
-        server = ctx.guild
+        if not ctx.author.voice:
+            await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
 
-        logger.info(f"`>trackPresence` command called on {("the" + voiceChannel.name) if voiceChannel else "no"} channel.")
-
-        if not voiceChannel:
-            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
-
-            response = await ctx.send('É necessário estar conectado em um canal de voz para utilizar esse comando.')
+            response = await ctx.send(
+                "É necessário estar conectado em um canal de voz para utilizar esse comando."
+            )
             await utils.react_response(response)
 
             return
 
-        try: duration = int(duration)
-        except ValueError: duration = None
+        voice_channel = ctx.author.voice.channel
+        logger.info(
+            f"`>trackPresence` command called on {('the' + voice_channel.name) if voice_channel else 'no'} channel."
+        )
+
+        try:
+            duration = int(duration)
+        except ValueError:
+            duration = None
 
         if not duration or duration < 10 or duration > 120:
-            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+            await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
 
-            response = await ctx.send('A duração precisa ser um número inteiro entre 10 e 120 minutos.')
+            response = await ctx.send(
+                "A duração precisa ser um número inteiro entre 10 e 120 minutos."
+            )
             await utils.react_response(response)
 
             return
 
-        await utils.react_message(ctx.message, ['🧮', '⏲️'])
+        await utils.react_message(ctx.message, ["🧮", "⏲️"])
 
-        response = await ctx.send(f'{ctx.author.mention} Pode deixar, meu querido! Tô de olho no `{voiceChannel.name}` pelos próximos `{duration}` minutos :)')
+        response = await ctx.send(
+            f"{ctx.author.mention} Pode deixar, meu querido! Tô de olho no "
+            f"`{voice_channel.name}` pelos próximos `{duration}` minutos :)"
+        )
         await utils.react_response(response)
 
-        # People who were in the meeting
+        # people who were in the meeting
         people = []
 
-        # Checks the channel every minute
-        print(f"   [**] This routine will sleep for {duration} minutes while it monitors the voice channel.")
+        # check the channel every minute
+        logger.info(
+            f"This routine will sleep for {duration} minutes while it monitors the voice channel.",
+            2,
+        )
         for _ in range(duration):
-            voiceChannel = get(server.voice_channels, id=voiceChannel.id)
-            people.extend([member.id for member in list(filter(lambda member: not member.id in people, voiceChannel.members))])
+            people.extend(
+                [m for m in voice_channel.members if m not in people and not m.bot]
+            )
+            await sleep(60)  # sleep for a minute
 
-            # Sleeps for a minute
-            await sleep(60)
+        logger.info("The '>trackPresence' command is done sleeping.")
 
-        print('\n [*] The \'>trackPresence\' command is done sleeping.')
+        # formatted names of the people who were present
+        peoples_names = ", ".join(
+            [f"{p.nick} ({p.name})" if p.nick else p.name for p in people]
+        )
 
-        # Crazy list comprehension that formats all the names
-        people = ', '.join([f'{member.nick} ({member.name})' if member.nick else member.name for member in list(filter(lambda member: not member.bot, [await server.fetch_member(id) for id in people]))])
-
-        response = await ctx.send(f'`[PRESENÇA DE REUNIÃO]`\n\nRegistro de presença convocado por {ctx.author.mention}, no canal de voz `{voiceChannel.name}`.\n\nOs presentes na reunião que começou há `{duration} minutos` foram: `{people}`.')
+        response = await ctx.send(
+            "`[PRESENÇA DE REUNIÃO]`\n\nRegistro de presença convocado por "
+            f"{ctx.author.mention}, no canal de voz `{voice_channel.name}`."
+            f"\n\nOs presentes na reunião que começou há `{duration} minutos` "
+            f"foram: `{peoples_names}`."
+        )
         await utils.react_response(response)
 
     # kick all members that have a role (possibly not working)
     @commands.command(
-            brief='Kicka do servidor todos os membros de um cargo (de vdd).',
-            help='Sintaxe: ">kick $CARGO"\n\n$CARGO pode ser tanto o nome do cargo (exatamente como está escrito no Discord), quanto a mention. Eu irei kickar do servidor todos os membros que possuem aquele cargo.\nPor exemplo: ">kick Convidado(a)", ou ">members @Convidado(a)"\n\nOBS: se você quiser que eu retorne a lista dos membros kickados, inclua "$list" no comando. Por exemplo: ">members Convidado(a) $list".',
-            aliases=[]
-            )
+        aliases=[],
+        brief="Kicka do servidor todos os membros de um cargo (de vdd).",
+        help=(
+            "Sintaxe: '>kick $CARGO'\n\n$CARGO pode ser tanto o nome do cargo "
+            "(exatamente como está escrito no Discord), quanto a mention. Eu "
+            "irei kickar do servidor todos os membros que possuem aquele cargo."
+            "\nPor exemplo: '>kick Convidado(a)', ou '>members @Convidado(a)'"
+            "\n\nOBS: se você quiser que eu retorne a lista dos membros "
+            "kickados, inclua '$list' no comando. Por exemplo: '>members "
+            "Convidado(a) $list'."
+        ),
+    )
     async def kick(self, ctx, *argv):
         await ctx.trigger_typing()
 
         logger.info("`>kick` command called.")
 
-        if 'Diretoria' not in [role.name for role in ctx.author.roles]:
-            await utils.react_message(ctx.message, ['🙅‍♂️', '❌', '🙅‍♀️'])
+        if not utils.in_diretoria(ctx.author):
+            await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
 
-            response = await ctx.reply(f'Apenas membros da diretoria podem utilizar esse comando. Por que você quer kickar os amiguinhos, {ctx.author.mention}? :c')
+            response = await ctx.reply(
+                "Apenas membros da diretoria podem utilizar esse comando. Por "
+                f"que você quer kickar os amiguinhos, {ctx.author.mention}? :c"
+            )
             await utils.react_response(response)
 
             return
 
-        await utils.react_message(ctx.message, [MESSAGE_EMOJI, '🚧'])
+        await utils.react_message(ctx.message, "🚧")
 
         argv = " ".join(argv)
+        print_list = " $list" in argv
+        if print_list:
+            argv = argv.replace(" $list", "")
 
-        printList = False
-        if ' $list' in argv:
-            printList = True
-            argv = argv.replace(' $list', '')
+        role = await utils.parse_role(argv, ctx)
 
-        role = get(ctx.guild.roles, name=argv)
-        if not role: role = get(ctx.guild.roles, mention=argv)
-
-        if not argv: response = 'É necessário fornecer um cargo ao comando. Em caso de dúvidas, envie `>help kick`.'
-
-        elif not role: response = f'Infelizmente o cargo `{argv}` não existe.'
-
-        elif not role.members: response = f'O cargo não possui nenhum membro.'
-
+        if not argv:
+            response = "É necessário fornecer um cargo ao comando. Em caso de dúvidas, envie `>help kick`."
+        elif not role:
+            response = f"Infelizmente o cargo `{argv}` não existe."
+        elif not role.members:
+            response = "O cargo não possui nenhum membro."
         else:
-            emoji = random.choice(AVAILABLE_REACTIONS)
-            sleepTime = 45 # seconds
+            emoji = random.choice(utils.AVAILABLE_REACTIONS)
+            sleep_time = 45  # seconds
 
-            response = await ctx.reply(f'A execução desse comando vai **kickar do servidor** todos os `{len(role.members)}` membros do `{argv}`. Você tem certeza que deseja prosseguir?\n\nPara continuar o processo, reaja nesta mensagem com {emoji} dentro dos próximos `{sleepTime}s`.')
-            await utils.react_message(response, ['❓'])
+            response = await ctx.reply(
+                "A execução desse comando vai **kickar do servidor** todos os "
+                f"`{len(role.members)}` membros do `{role.name}`. Você tem "
+                "certeza que deseja prosseguir?\n\nPara continuar o processo, "
+                f"reaja nesta mensagem com {emoji} dentro dos próximos `{sleep_time}s`."
+            )
+            await utils.react_message(response, "❓")
 
-            print(f"   [**] This routine will sleep for {sleepTime} seconds whiles it waits for users to react.")
-            await sleep(sleepTime)
-            print('\n [*] The \'>kick\' command is done sleeping.')
+            await sleep(sleep_time)
 
-            print(f"   [**] Fetching message reactions.")
-            cached = await ctx.fetch_message(response.id)
-            print(f"   [**] Fetched message's id: {cached.id}")
+            cached_msg: discord.message.Message = await ctx.fetch_message(response.id)
+            reaction = get(cached_msg.reactions, emoji=emoji)
 
-            reaction = list(filter(lambda r: emoji == r.emoji, cached.reactions))
-
-            if not reaction or not ctx.author.id in [m.id for m in await reaction[0].users().flatten()]:
-                await cached.reply(f'Como o {ctx.author.mention} não confirmou a continuação do processo, não kickarei ninguém.')
+            if not reaction or not get(
+                await reaction.users().flatten(), id=ctx.author.id
+            ):
+                await cached_msg.reply(
+                    f"Como o {ctx.author.mention} não confirmou a continuação do processo, não kickarei ninguém."
+                )
                 return
 
-            getMemberName = lambda m: f'`{m.nick} ({m.name})`' if m.nick else f'`{m.name}`'
-            getMemberMention = lambda m: f'{m.mention}'
-
             kicked = []
-            notKicked = []
+            not_kicked = []
+
             for member in role.members:
-                try: await member.kick(reason=f'Uso do comando ">kick", por {getMemberName(ctx.author)} no cargo {argv}.')
-                except: notKicked.append(member)
-                else: kicked.append(member)
+                try:
+                    await member.kick(
+                        reason="Uso do comando '>kick', por "
+                        f"{utils.get_member_name(ctx.author)} no cargo {role.name}."
+                    )
+                except Exception:
+                    not_kicked.append(member)
+                else:
+                    kicked.append(member)
 
-            kicked = ", ".join(map(getMemberMention, kicked))
-            notKicked = ", ".join(map(getMemberMention, notKicked))
+            def get_member_mention(member):
+                return f"{member.mention}"
 
-            response = f'`{len(kicked)} / {len(role.members)}` membros do {role.mention} foram kickados com sucesso.' + \
-                    (f'\n\nLista dos membros kickados: {kicked}' if printList and kicked else '') + (f'\n\nLista dos membros não kickados: {notKicked}' if notKicked else '')
+            kicked = ", ".join(map(get_member_mention, kicked))
+            not_kicked = ", ".join(map(get_member_mention, not_kicked))
+
+            response = (
+                f"`{len(kicked)}/{len(role.members)}` membros do {role.mention} foram kickados com sucesso."
+                + (
+                    f"\n\nLista dos membros kickados: {kicked}"
+                    if print_list and kicked
+                    else ""
+                )
+                + (
+                    f"\n\nLista dos membros não kickados: {not_kicked}"
+                    if not_kicked
+                    else ""
+                )
+            )
 
         response = await ctx.reply(response)
-
         await utils.react_response(response)
 
     # list all members that have a role
     @commands.command(
-        brief='Lista todos os membros de um cargo.',
-        help='Sintaxe: ">members $CARGO"\n\n$CARGO pode ser tanto o nome do cargo (exatamente como está escrito no Discord), quanto a mention. Eu irei retornar a lista de todos os membros que possuem aquele cargo - o "apelido" no servidor e o nome de usuário entre parênteses.\nPor exemplo: ">members Kit Bixo", ou ">members @Kit Bixo"\n\nOBS: Se você quiser que eu retorne a mention dos membros, inclua "$mention" no comando. Por exemplo: ">members Kit Bixo $mention".',
-        aliases=['membros', 'whosIn', 'whosin', 'rusin']
+        aliases=[],
+        brief="Lista todos os membros de um cargo.",
+        help=(
+            "Sintaxe: '>members $CARGO'\n\n$CARGO pode ser tanto o nome do "
+            "cargo (exatamente como está escrito no Discord), quanto a mention."
+            " Eu irei retornar a lista de todos os membros que possuem aquele "
+            "cargo - o 'apelido' no servidor e o nome de usuário entre "
+            "parênteses.\nPor exemplo: '>members Kit Bixo', ou '>members @Kit "
+            "Bixo'\n\nOBS: Se você quiser que eu retorne a mention dos membros,"
+            " inclua '$mention' no comando. Por exemplo: '>members Kit Bixo "
+            "$mention'."
+        ),
     )
     async def members(self, ctx, *argv):
         await ctx.trigger_typing()
 
-        logger.info("`>kick` command called.")
-        await utils.react_message(ctx.message, [MESSAGE_EMOJI, '⁉️', 'ℹ️'])
+        logger.info("`>members` command called.")
+        await utils.react_message(ctx.message, ["⁉️", "ℹ️"])
 
         argv = " ".join(argv)
 
-        mention = False
-        if ' $mention' in argv:
-            mention = True
-            argv = argv.replace(' $mention', '')
+        mention = " $mention" in argv
+        if mention:
+            argv = argv.replace(" $mention", "")
 
-        role = get(ctx.guild.roles, name=argv)
-        if not role: role = get(ctx.guild.roles, mention=argv)
+        role = await utils.parse_role(argv, ctx)
 
-        if not argv: response = 'É necessário fornecer um cargo ao comando. Em caso de dúvidas, envie `>help members`.'
-
-        elif not role: response = f'Infelizmente o cargo `{argv}` não existe.'
-
-        elif not role.members: response = f'O cargo não possui nenhum membro.'
-
+        if not argv:
+            response = "É necessário fornecer um cargo ao comando. Em caso de dúvidas, envie `>help members`."
+        elif not role:
+            response = f"Infelizmente o cargo `{argv}` não existe."
+        elif not role.members:
+            response = "O cargo não possui nenhum membro."
         else:
-            getMemberName = lambda m: f'`{m.nick} ({m.name})`' if m.nick else f'`{m.name}`'
-            getMemberMention = lambda m: f'{m.mention}'
-
-            members = ", ".join(map(getMemberMention if mention else getMemberName, role.members))
-            roleName = role.mention if mention else f"`{role.name}`"
-
-            response = f'Os {len(role.members)} membros do {roleName} são:\n\n{members}'
+            members = ", ".join(
+                map(
+                    (lambda m: f"{m.mention}") if mention else utils.get_member_name,
+                    role.members,
+                )
+            )
+            role_name = role.mention if mention else f"`{role.name}`"
+            response = (
+                f"Os {len(role.members)} membros do {role_name} são:\n\n{members}"
+            )
 
         response = await ctx.reply(response)
-
         await utils.react_response(response)
 
 

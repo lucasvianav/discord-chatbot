@@ -13,7 +13,11 @@ class Counters(commands.Cog):
         # database
         client = pymongo.MongoClient(MONGODB_ATLAS_URI)
         self.db = client["discord-bot"]["discord-bot"]
-        self.counters = self.db.find_one({"description": "counters"})["counters"]
+        self.counters = (
+            obj["counters"]
+            if (obj := self.db.find_one({"description": "counters"}))
+            else {}
+        )
 
     def update_counters(self):
         self.db.find_one_and_update(
@@ -37,7 +41,7 @@ class Counters(commands.Cog):
             + "Júlio já foi apreciado `{self.counters['júlio']}` vezes."
         )
 
-        await utils.react_response(response, ["❤️"])
+        await utils.react_response(response, "❤️")
 
 
 def setup(bot):

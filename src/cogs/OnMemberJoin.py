@@ -13,7 +13,11 @@ class onMemberJoin(commands.Cog):
         self.client = pymongo.MongoClient(MONGODB_ATLAS_URI)
         self.db = self.client["discord-bot"]["discord-bot"]
 
-        self.roles = self.db.find_one({"description": "onMemberJoinRoles"})["roles"]
+        self.roles = (
+            obj["roles"]
+            if (obj := self.db.find_one({"description": "onMemberJoinRoles"}))
+            else []
+        )
 
     # list all roles that'll be added to new members when they join the server
     @commands.command(
@@ -81,7 +85,7 @@ class onMemberJoin(commands.Cog):
 
         roles = utils.parse_piped_list(roles)
 
-        if "Diretoria" not in [role.name for role in ctx.author.roles] or not roles:
+        if not utils.in_diretoria(ctx.author) or not roles:
             await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
 
             response = await ctx.send(
@@ -96,7 +100,7 @@ class onMemberJoin(commands.Cog):
         await utils.react_message(ctx.message, ["🐥", utils.MESSAGE_EMOJI, "🚼"])
 
         server_roles = [role.name for role in await ctx.guild.fetch_roles()]
-        invalid_roles = [role.name for role in roles if role not in server_roles]
+        invalid_roles = [role for role in roles if role not in server_roles]
         roles = [role for role in roles if role not in invalid_roles]
 
         self.roles.extend(roles)
@@ -155,7 +159,7 @@ class onMemberJoin(commands.Cog):
         await ctx.trigger_typing()
         logger.info("`>removeRolesOMJ` command called.")
 
-        if "Diretoria" not in [role.name for role in ctx.author.roles]:
+        if not utils.in_diretoria(ctx.author):
             await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
             response = await ctx.send(
                 "Apenas membros da diretoria podem utilizar esse comando."
@@ -174,7 +178,7 @@ class onMemberJoin(commands.Cog):
                 "Nenhum cargo será automaitcamente dado a membros novos ao entrarem no servidor."
             )
         else:
-            invalid_roles = [role.name for role in roles if role not in self.roles]
+            invalid_roles = [role for role in roles if role not in self.roles]
             roles = [role for role in roles if role not in invalid_roles]
             self.roles = [role for role in self.roles if role not in roles]
 
