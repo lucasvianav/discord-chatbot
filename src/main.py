@@ -24,7 +24,7 @@ bot = commands.Bot(command_prefix=">", intents=intents)
 def __refresh_bot():
     """Refresh the sheets' commands and triggers."""
     (
-        config.spreadsheet,
+        config.ss,
         config.command_sheet,
         config.trigger_sheet,
         isEmpty,
@@ -75,40 +75,76 @@ async def on_member_join(member):
 
 
 @bot.event
-async def on_message(message):
+async def on_message(message: discord.Message):
     if message.author == bot.user:
         return
 
-    # checks for all triggers listed in the spreadsheet
-    for element in config.trigger_sheet:
-        triggers = [trigger for trigger in element["TRIGGER"].split("\n") if trigger]
+    if message.content.startswith(">") and " " not in message.content:
+        for element in config.command_sheet:
+            commands = [
+                ">" + command
+                for command in (
+                    element["COMMAND NAME"].split("\n")
+                    + element["COMMAND ALIASES"].split("\n")
+                )
+                if command
+            ]
 
-        if message.content and message.content.lower() in triggers:
-            logger.info(
-                f"Trigger: '{message.content}', by {message.author.display_name}."
-            )
-            await utils.react_message(message, [utils.MESSAGE_EMOJI])
+            if message.content and message.content.lower() in commands:
+                logger.info(
+                    f"Command: '{message.content}', by {message.author.display_name}."
+                )
+                await utils.react_message(message)
 
-            text = element["RESPONSE TEXT"]
-            images = utils.get_images(element["RESPONSE IMAGE"].split("\n"))
-            tts = element["TTS"] == "TRUE"
+                text = element["RESPONSE TEXT"]
+                images = utils.get_images(element["RESPONSE IMAGE"].split("\n"))
+                tts = element["TTS"] == "TRUE"
+                reply = element["REPLY"] == "TRUE"
 
-            if images:
-                response = await message.channel.send(
-                    content=text,
-                    files=[discord.File(img) for img in images],
-                    tts=tts,
+                kwargs = {"content": text, "tts": tts}
+
+                if images:
+                    kwargs["files"] = [discord.File(img) for img in images]
+
+                response = await (
+                    message.reply(**kwargs) if reply else message.channel.send(**kwargs)
                 )
 
-                for img in images:
-                    os.remove(img)
-            else:
-                response = await message.channel.send(content=text, tts=tts)
+                if images:
+                    utils.delete_images(images)
 
-            logger.info("The response was successfully sent.")
-            await utils.react_response(response)
+                logger.info("The response was successfully sent.", 2)
+                await utils.react_response(response)
 
-            return
+                return
+    elif not message.content.startswith(">"):
+        for element in config.trigger_sheet:
+            triggers = [t for t in element["TRIGGER"].split("\n") if t]
+
+            if message.content and message.content.lower() in triggers:
+                logger.info(
+                    f"Trigger: '{message.content}', by {message.author.display_name}."
+                )
+                await utils.react_message(message)
+
+                text = element["RESPONSE TEXT"]
+                images = utils.get_images(element["RESPONSE IMAGE"].split("\n"))
+                tts = element["TTS"] == "TRUE"
+
+                if images:
+                    response = await message.channel.send(
+                        content=text,
+                        files=[discord.File(img) for img in images],
+                        tts=tts,
+                    )
+                    utils.delete_images(images)
+                else:
+                    response = await message.channel.send(content=text, tts=tts)
+
+                logger.info("The response was successfully sent.", 2)
+                await utils.react_response(response)
+
+                return
 
     await bot.process_commands(message)
 

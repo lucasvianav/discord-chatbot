@@ -1,4 +1,6 @@
+import os
 import re
+import sys
 
 import discord
 import requests
@@ -93,14 +95,17 @@ def get_images(links: list[str]) -> list[str]:
 
     Parameters
     ----------
-        links (str[]): images' URLs
+    links (list[str]): images' URLs
 
     Returns
     -------
-        str[]: paths to downloaded images
+    list[str]: paths to downloaded images
     """
     links = [url for url in links if url.startswith("http")]
     images = []
+
+    if not os.path.isdir("./images"):
+        os.mkdir("./images")
 
     for i, url in enumerate(links):
         # maximum of 10 images
@@ -122,6 +127,26 @@ def get_images(links: list[str]) -> list[str]:
             r.close()
 
     return images
+
+
+def delete_images(paths: list[str]) -> None:
+    """
+    Delete the images in the provided paths, assuming they are in the `images` directory.
+    Also deletes the `images` directory if it's empty.
+
+    Parameters
+    ----------
+    paths (list[str]): images' URLs
+
+    Returns
+    -------
+    list[str]: paths to downloaded images
+    """
+    paths = [path for path in paths if path.startswith("./images/")]
+    for img in paths:
+        os.remove(img)
+    if not os.listdir("./images"):
+        os.removedirs("./images")
 
 
 def parse_time(time: str) -> int | None:

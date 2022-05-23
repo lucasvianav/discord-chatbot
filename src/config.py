@@ -74,9 +74,9 @@ credentials = Credentials.from_service_account_file("credentials.json", scopes=s
 client = gspread.authorize(credentials)
 
 # Gets the spreadsheet's info (commands and triggers)
-spreadsheet = client.open_by_key(SPREADSHEET_KEY)
-command_sheet = spreadsheet.worksheet("commands").get_all_records()
-trigger_sheet = spreadsheet.worksheet("triggers").get_all_records()
+ss = client.open_by_key(SPREADSHEET_KEY)
+command_sheet: list[dict[str, str]] = ss.worksheet("commands").get_all_records()
+trigger_sheet: list[dict[str, str]] = ss.worksheet("triggers").get_all_records()
 
 
 def refresh_sheet():
