@@ -5,8 +5,7 @@ import discord
 from discord import Message
 from discord.ext.commands.context import Context
 
-import logger
-import utils
+from utilities import logger, utils
 
 
 class SheetCommand:

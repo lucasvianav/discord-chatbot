@@ -8,6 +8,8 @@ from discord import Message
 from discord.ext.commands.context import Context
 from discord.utils import get
 
+from utilities import logger
+
 # emoji that'll be mainly used to react to user messages
 MESSAGE_EMOJI = "🍉"
 # emoji that'll be used to react to all bot messages
