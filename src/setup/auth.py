@@ -2,19 +2,7 @@ import os
 from json import dump
 
 import gspread
-from dotenv import load_dotenv
 from google.oauth2.service_account import Credentials
-
-# Gets tokens and keys
-if os.path.isfile("./.env"):
-    load_dotenv()
-    DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-    SPREADSHEET_KEY = os.getenv("SPREADSHEET_KEY")
-    MONGODB_ATLAS_URI = os.getenv("MONGODB_ATLAS_URI")
-else:
-    DISCORD_TOKEN = os.environ["DISCORD_TOKEN"]
-    SPREADSHEET_KEY = os.environ["SPREADSHEET_KEY"]
-    MONGODB_ATLAS_URI = os.environ["MONGODB_ATLAS_URI"]
 
 # if no credential is found, search for it as enviromental variables
 if not os.path.isfile("./credentials.json"):
@@ -47,7 +35,7 @@ if not os.path.isfile("./credentials.json"):
         ]
         GOOGLE_CREDENTIALS_CLIENT = os.environ["GOOGLE_CREDENTIALS_CLIENT"]
 
-    credentials = {
+    __credentials = {
         "type": GOOGLE_CREDENTIALS_TYPE,
         "project_id": GOOGLE_CREDENTIALS_PROJECT_ID,
         "private_key_id": GOOGLE_CREDENTIALS_PRIVATE_KEY_ID,
@@ -61,41 +49,17 @@ if not os.path.isfile("./credentials.json"):
     }
 
     with open("./credentials.json", "w") as f:
-        dump(credentials, f, indent=4)
+        dump(__credentials, f, indent=4)
 
 # Use creds to create a client to interact with the Google Drive API
-scopes = [
+__scopes = [
     "https://spreadsheets.google.com/feeds",
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive",
 ]
-credentials = Credentials.from_service_account_file("credentials.json", scopes=scopes)
-client = gspread.authorize(credentials)
+__credentials = Credentials.from_service_account_file(
+    "credentials.json", scopes=__scopes
+)
 
-# Gets the spreadsheet's info (commands and triggers)
-ss = client.open_by_key(SPREADSHEET_KEY)
-command_sheet: list[dict[str, str]] = ss.worksheet("commands").get_all_records()
-trigger_sheet: list[dict[str, str]] = ss.worksheet("triggers").get_all_records()
-
-
-def refresh_sheet():
-    """
-    Update the commands and triggers
-    by getting the spreadsheet's info again
-    """
-    spreadsheet = client.open_by_key(SPREADSHEET_KEY)
-    commandSheet = [
-        record
-        for record in spreadsheet.worksheet("commands").get_all_records()
-        if record["COMMAND NAME"]
-    ]
-    triggerSheet = [
-        record
-        for record in spreadsheet.worksheet("triggers").get_all_records()
-        if record["TRIGGER"]
-    ]
-
-    isEmpty = len(triggerSheet) == 0 and len(commandSheet) == 0
-
-    return spreadsheet, commandSheet, triggerSheet, isEmpty
+client = gspread.authorize(__credentials)
