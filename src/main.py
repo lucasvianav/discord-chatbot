@@ -60,7 +60,7 @@ async def on_message(message: discord.Message):
 
     if message.content == ">help":
         await utils.react_message(message)
-    elif message.content.startswith(">help "):
+    elif message.content.startswith(">help "):  # check for custom help texts
         await utils.react_message(message)
         target = message.content[6:]
 
@@ -106,41 +106,21 @@ async def on_message(message: discord.Message):
                 response = await message.channel.send(f"```{msg}```")
                 await utils.react_response(response)
             return
-    elif message.content.startswith(">") and (
+    elif message.content.startswith(">") and (  # look for command
         command := sheet.commands.get_command(message.content.lower()[1:])
     ):
         logger.info(f"Command: '{command.name}', by {message.author.display_name}.")
         await utils.react_message(message)
         await command.send(message)
         return
-    elif not message.content.startswith(">"):
-        for element in sheet.triggers:
-            triggers = [t for t in element["TRIGGER"].split("\n") if t]
-
-            if message.content and message.content.lower() in triggers:
-                logger.info(
-                    f"Trigger: '{message.content}', by {message.author.display_name}."
-                )
-                await utils.react_message(message)
-
-                text = element["RESPONSE TEXT"]
-                images = utils.get_images(element["RESPONSE IMAGE"].split("\n"))
-                tts = element["TTS"] == "TRUE"
-
-                if images:
-                    response = await message.channel.send(
-                        content=text,
-                        files=[discord.File(img) for img in images],
-                        tts=tts,
-                    )
-                    utils.delete_images(images)
-                else:
-                    response = await message.channel.send(content=text, tts=tts)
-
-                logger.info("The response was successfully sent.", 2)
-                await utils.react_response(response)
-
-                return
+    elif not message.content.startswith(">"):  # look for trigger
+        if trigger := sheet.triggers.get_trigger(message.content):
+            logger.info(
+                f"Trigger: '{message.content.lower()}', by {message.author.display_name}."
+            )
+            await utils.react_message(message)
+            await trigger.send(message)
+            return
 
     await bot.process_commands(message)
 
