@@ -4,8 +4,7 @@ from random import shuffle
 
 from discord.ext import commands
 
-import logger
-import utils
+from utilities import logger, utils
 
 
 class Decisions(commands.Cog):

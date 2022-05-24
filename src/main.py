@@ -4,33 +4,12 @@ from datetime import timedelta
 from re import search
 
 import discord
-import pymongo
-from discord.ext import commands, tasks
+from discord.ext import tasks
 from discord.utils import get
 
-import config
-import logger
-import utils
-
-# mongo database
-client = pymongo.MongoClient(config.MONGODB_ATLAS_URI)
-db = client["discord-bot"]["discord-bot"]
-
-intents = discord.Intents.default()
-intents.members = True
-bot = commands.Bot(command_prefix=">", intents=intents)
-
-
-def __refresh_bot():
-    """Refresh the sheets' commands and triggers."""
-    (
-        config.ss,
-        config.command_sheet,
-        config.trigger_sheet,
-        isEmpty,
-    ) = config.refresh_sheet()
-
-    return isEmpty
+from setup import config
+from setup.config import bot, db, sheet
+from utilities import logger, utils
 
 
 @bot.event
@@ -43,7 +22,7 @@ async def on_ready():
     logger.info("The bot's status was successfully set.")
 
     periodic_refresh.start()
-    print("The periodic refresh task was successfully started.")
+    logger.info("The periodic refresh task was successfully started.")
 
 
 @bot.event
@@ -76,49 +55,66 @@ async def on_member_join(member):
 
 @bot.event
 async def on_message(message: discord.Message):
-    if message.author == bot.user:
+    if message.author == bot.user or message.content == ">":
         return
 
-    if message.content.startswith(">") and " " not in message.content:
-        for element in config.command_sheet:
-            commands = [
-                ">" + command
-                for command in (
-                    element["COMMAND NAME"].split("\n")
-                    + element["COMMAND ALIASES"].split("\n")
-                )
-                if command
-            ]
+    if message.content == ">help":
+        await utils.react_message(message)
+    elif message.content.startswith(">help "):
+        await utils.react_message(message)
+        target = message.content[6:]
 
-            if message.content and message.content.lower() in commands:
-                logger.info(
-                    f"Command: '{message.content}', by {message.author.display_name}."
-                )
-                await utils.react_message(message)
-
-                text = element["RESPONSE TEXT"]
-                images = utils.get_images(element["RESPONSE IMAGE"].split("\n"))
-                tts = element["TTS"] == "TRUE"
-                reply = element["REPLY"] == "TRUE"
-
-                kwargs = {"content": text, "tts": tts}
-
-                if images:
-                    kwargs["files"] = [discord.File(img) for img in images]
-
-                response = await (
-                    message.reply(**kwargs) if reply else message.channel.send(**kwargs)
-                )
-
-                if images:
-                    utils.delete_images(images)
-
-                logger.info("The response was successfully sent.", 2)
+        if target == "help":
+            response = await message.channel.send(
+                "```>help [comando|categoria]\n"
+                "\nMostra essa mensagem.\n\nPara listar os comandos da planilha, "
+                "envie '>help spreadsheet' ou '>help planilha'.```"
+            )
+            return
+        elif command := sheet.commands.get_command(target):
+            response = await message.channel.send(str(command))
+            await utils.react_response(response)
+            return
+        elif category := sheet.commands.get_category_commands(target):
+            lines = (
+                [
+                    "Categoria que faz parte da planilha, seus comandos ",
+                    "respondem com algum texto ou imagem.",
+                    "\n\nComandos:\n",
+                ]
+                + [f" {cmd.name}\n" for cmd in category]
+                + ['\nPara mais detalhes, envie ">spreadsheet".']
+            )
+            messages = utils.create_messages_from_list(lines)
+            for msg in messages:
+                response = await message.channel.send(f"```{msg}```")
                 await utils.react_response(response)
+            return
+        elif target in ["spreadsheet", "planilha"]:
+            categories = sheet.commands.get_categories_commands()
 
-                return
+            lines = [
+                "Comandos definidos na planilha, que respondem com algum ",
+                "texto ou imagem.\n\n[COMANDOS]\n",
+            ]
+            for category, commands in categories.items():
+                lines += [f"{category}:\n"] + [f" {cmd.name}\n" for cmd in commands]
+            lines += ['\nPara editar os comandos, envie ">spreadsheet".']
+
+            messages = utils.create_messages_from_list(lines)
+            for msg in messages:
+                response = await message.channel.send(f"```{msg}```")
+                await utils.react_response(response)
+            return
+    elif message.content.startswith(">") and (
+        command := sheet.commands.get_command(message.content.lower()[1:])
+    ):
+        logger.info(f"Command: '{command.name}', by {message.author.display_name}.")
+        await utils.react_message(message)
+        await command.send(message)
+        return
     elif not message.content.startswith(">"):
-        for element in config.trigger_sheet:
+        for element in sheet.triggers:
             triggers = [t for t in element["TRIGGER"].split("\n") if t]
 
             if message.content and message.content.lower() in triggers:
@@ -172,19 +168,18 @@ async def credits(ctx):
 async def refresh(ctx):
     await ctx.trigger_typing()
     logger.info("`>refresh` command called.")
-
     await utils.react_message(ctx.message, ["🔝", "👌", "🆗"])
 
-    isEmpty = __refresh_bot()
+    sheet.refresh()
 
-    if not isEmpty:
+    if not sheet.empty:
         logger.info("The commands and triggers were successfully updated.", 2)
-        resp = await ctx.send("Os comandos e triggers foram atualizados com sucesso.")
-        await utils.react_response(resp)
+        response = await ctx.send("Comandos e triggers foram atualizados com sucesso.")
+        await utils.react_response(response)
     else:
         logger.info("There are no commands nor triggers registered.", 2)
-        resp = await ctx.send("Não há comandos nem triggers cadastrados.")
-        await utils.react_response(resp, "😢")
+        response = await ctx.send("Não há comandos nem triggers cadastrados.")
+        await utils.react_response(response, "😢")
 
 
 @bot.command(
@@ -222,9 +217,8 @@ async def clear(ctx, delta="10min"):
 
         # hasPrefix = search('^>\S.*$', m.content)
         did_i_react = get(message.reactions, me=True)
-        is_help = message.content == ">help"
 
-        return is_help or (not_pinned and not is_important and (is_me or did_i_react))
+        return not_pinned and not is_important and (is_me or did_i_react)
 
     deleted = await ctx.channel.purge(after=timestamp, check=filter_function)
 
@@ -297,11 +291,29 @@ async def send(ctx, *argv):
     await utils.react_response(response)
 
 
+@bot.command(
+    aliases=["sheet", "planilha", "commands", "comandos"],
+    brief="Mostra o link da planilha de comandos do bot.",
+)
+async def spreadsheet(ctx):
+    await ctx.trigger_typing()
+
+    logger.info("`>spreadsheet` command called.")
+    await utils.react_message(ctx.message)
+
+    response = await ctx.reply(
+        "Segue o link para a planilha com os ~~comandos do bot~~ meus comandos. "
+        f"Use-a com cuidado.\nhttps://docs.google.com/spreadsheets/d/{config.SPREADSHEET_KEY}"
+    )
+    await utils.react_response(response)
+
+
 # Refreshes the sheets' commands and triggers every 15 minutes
 @tasks.loop(minutes=15)
 async def periodic_refresh():
     logger.info("Time for a periodic refresh.")
-    end = " - none registered." if __refresh_bot() else "."
+    sheet.refresh()
+    end = " - none registered." if sheet.empty else "."
     logger.info("The commands and triggers were successfully updated" + end, 2)
 
 

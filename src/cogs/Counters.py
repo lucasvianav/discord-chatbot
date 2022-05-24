@@ -1,26 +1,18 @@
-import pymongo
 from discord.ext import commands
 
-import logger
-import utils
-from config import MONGODB_ATLAS_URI
+from setup.config import db
+from utilities import logger, utils
 
 
 class Counters(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-        # database
-        client = pymongo.MongoClient(MONGODB_ATLAS_URI)
-        self.db = client["discord-bot"]["discord-bot"]
         self.counters = (
-            obj["counters"]
-            if (obj := self.db.find_one({"description": "counters"}))
-            else {}
+            obj["counters"] if (obj := db.find_one({"description": "counters"})) else {}
         )
 
     def update_counters(self):
-        self.db.find_one_and_update(
+        db.find_one_and_update(
             {"description": "counters"}, {"$set": {"counters": self.counters}}
         )
 

@@ -10,8 +10,8 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.support.ui import WebDriverWait as waiter
 from webdriver_manager.chrome import ChromeDriverManager
 
-import logger
-import utils
+from utilities import logger
+from utilities import utils
 
 
 class SuperMarselo(commands.Cog):

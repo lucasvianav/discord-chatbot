@@ -1,21 +1,16 @@
 import pymongo
 from discord.ext import commands
 
-import logger
-import utils
-from config import MONGODB_ATLAS_URI
+from setup.config import db
+from utilities import logger, utils
 
 
 class onMemberJoin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-        self.client = pymongo.MongoClient(MONGODB_ATLAS_URI)
-        self.db = self.client["discord-bot"]["discord-bot"]
-
         self.roles = (
             obj["roles"]
-            if (obj := self.db.find_one({"description": "onMemberJoinRoles"}))
+            if (obj := db.find_one({"description": "onMemberJoinRoles"}))
             else []
         )
 
@@ -83,7 +78,7 @@ class onMemberJoin(commands.Cog):
             response = await ctx.send(
                 "Apenas membros da diretoria podem utilizar esse comando."
                 if roles
-                else 'Nenhum nome de cargo foi passado. Para mais informações, envie `>help onMemberJoinRoles+`.'
+                else "Nenhum nome de cargo foi passado. Para mais informações, envie `>help onMemberJoinRoles+`."
             )
             await utils.react_response(response)
 
@@ -96,7 +91,7 @@ class onMemberJoin(commands.Cog):
         roles = [role for role in roles if role not in invalid_roles]
 
         self.roles.extend(roles)
-        self.db.find_one_and_update(
+        db.find_one_and_update(
             {"description": "onMemberJoinRoles"}, {"$set": {"roles": self.roles}}
         )
 
@@ -183,7 +178,7 @@ class onMemberJoin(commands.Cog):
                 )
             )
 
-        self.db.find_one_and_update(
+        db.find_one_and_update(
             {"description": "onMemberJoinRoles"}, {"$set": {"roles": self.roles}}
         )
         response = await ctx.send(response)
@@ -229,7 +224,7 @@ class onMemberJoin(commands.Cog):
         roles = [role for role in roles if role not in invalid_roles]
 
         self.roles = roles
-        self.db.find_one_and_update(
+        db.find_one_and_update(
             {"description": "onMemberJoinRoles"}, {"$set": {"roles": self.roles}}
         )
 
