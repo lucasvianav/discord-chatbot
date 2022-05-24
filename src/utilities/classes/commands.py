@@ -1,14 +1,10 @@
 from collections import defaultdict
-from typing import Any
 
-import discord
-from discord import Message
-from discord.ext.commands.context import Context
-
-from utilities import logger, utils
+from utilities import utils
+from utilities.classes.discord import SheetDiscordInteraction
 
 
-class SheetCommand:
+class SheetCommand(SheetDiscordInteraction):
     """Object for a Discord command as defined in a Google Sheet's spreadsheet."""
 
     category: str
@@ -40,17 +36,19 @@ class SheetCommand:
 
         self.category = category.strip()
         self.name = name.strip()
-        self.aliases = [a.strip() for a in aliases if a]
+        self.aliases = [a for e in aliases if (a := e.strip())]
         self.response_text = response_text.strip()
         self.response_images = [
-            i.replace("\n", "").replace(" ", "") for i in response_images if i
+            i for e in response_images if (i := e.replace("\n", "").replace(" ", ""))
         ]
         self.tts = tts
         self.reply = reply
 
         if not SheetCommand.validate_name(self.name):
             raise ValueError("Invalid command name: ", self.name)
-        if self.aliases and not any([SheetCommand.validate_name(alias) for alias in self.aliases]):
+        if self.aliases and not any(
+            [SheetCommand.validate_name(alias) for alias in self.aliases]
+        ):
             raise ValueError("Invalid aliases: ", self.aliases)
 
     def __str__(self) -> str:
@@ -61,52 +59,9 @@ class SheetCommand:
             'detalhes, envie ">spreadsheet".```'
         )
 
-    def get_content(self) -> tuple[dict[str, Any], list[str]]:
-        """Return a dict with the command's content to be passed directly into a Discord's `send()` method."""
-        kwargs = {"content": self.response_text, "tts": self.tts}
-
-        images = utils.get_images(self.response_images)
-
-        if images:
-            kwargs["files"] = [discord.File(img) for img in images]
-
-        return kwargs, images
-
     def get_names(self) -> list[str]:
         """Get the list of the command's name and all of it's aliases."""
         return [self.name] + self.aliases
-
-    async def send(
-        self, ctx: Message | Context, emoji: str | list[str] = utils.RESPONSE_EMOJI
-    ) -> Message:
-        """
-        Fire the command, sending it's contents to a message's channel/context.
-        Also react to the sent message with given emoji.
-
-        Parameters
-        ----------
-        ctx (Message | Context): either a message or a context to sent the command's contents in (if message, in it's channel).
-        emoji (str | list[str]): emoji to react to the sent message with.
-
-        Returns
-        -------
-        Message: the commands message.
-        """
-        kwargs, images = self.get_content()
-
-        response = await (
-            ctx.reply(**kwargs)
-            if self.reply
-            else utils.get_sender_method(ctx)(**kwargs)
-        )
-
-        logger.info("The response was successfully sent.", 2)
-        await utils.react_response(response, emoji)
-
-        if images:
-            utils.delete_images(images)
-
-        return response
 
     @staticmethod
     def validate_name(name: str):
@@ -115,7 +70,7 @@ class SheetCommand:
         starts_with_prefix = name.startswith(">")
         has_space = " " in name
 
-        return not (has_newline or starts_with_prefix or has_space)
+        return name and not (has_newline or starts_with_prefix or has_space)
 
 
 class CommandSheet:
