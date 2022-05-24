@@ -1,12 +1,12 @@
 import os
 import re
-import sys
+from typing import Callable
 
 import discord
 import requests
+from discord import Message
+from discord.ext.commands.context import Context
 from discord.utils import get
-
-import logger
 
 # emoji that'll be mainly used to react to user messages
 MESSAGE_EMOJI = "🍉"
@@ -69,7 +69,7 @@ VOCATIVES = [
 
 
 async def react_message(
-    message: discord.Message, emoji: str | list[str] = MESSAGE_EMOJI
+    message: Message, emoji: str | list[str] = MESSAGE_EMOJI
 ) -> None:
     emojis = [emoji] if type(emoji) == "str" else emoji
 
@@ -83,7 +83,7 @@ async def react_message(
 
 
 async def react_response(
-    response: discord.Message, emoji: str | list[str] = RESPONSE_EMOJI
+    response: Message, emoji: str | list[str] = RESPONSE_EMOJI
 ) -> None:
     emojis = [emoji] if type(emoji) is str else emoji
     await react_message(response, emojis)
@@ -155,8 +155,7 @@ def parse_time(time: str) -> int | None:
 
     Parameters
     ----------
-    time: str
-    The timestamp.
+    time (str): the timestamp.
 
     Returns
     -------
@@ -194,10 +193,8 @@ def parse_settings_list(
 
     Parameters
     ----------
-    items: list[str]
-        List of items to be extracted from.
-    target_settings: list[str]
-        List of option names. Each will be preceded by '$'.
+    items (list[str]): list of items to be extracted from.
+    target_settings (list[str]): list of option names. Each will be preceded by '$'.
 
     Returns
     -------
@@ -232,10 +229,8 @@ async def parse_role(role: str, server: discord.Guild) -> discord.Role | None:
 
     Parameters
     ----------
-    role: str
-    The role's name or mention.
-    ctx: discord.ext.commands.Context
-    The context in which to search for the role.
+    role (str): the role's name or mention.
+    server (discord.Guild): the server in which to search for the role.
 
     Returns
     -------
@@ -257,3 +252,49 @@ def in_diretoria(author: discord.Member) -> bool:
 def get_member_name(member) -> str:
     """Get the member's name and nickname."""
     return f"`{member.nick} ({member.name})`" if member.nick else f"`{member.name}`"
+
+
+def create_messages_from_list(lines: list[str]) -> list[str]:
+    """
+    Create a list of Discord messages with less than 2000 characters from off of a list of lines.
+
+    Parameters
+    ----------
+    lines (list[str]): list of strings to make up the messages.
+
+    Returns
+    -------
+    list[str]: list of messages to be sent
+    """
+    messages: list[str] = []
+
+    # clip messages to max 2000 characters (Discord limitation)
+    while lines:
+        text = ""
+        while lines and len(text) + len(lines[0]) <= 1990:
+            text += lines.pop(0)
+        messages.append(text)
+
+    return messages
+
+
+def get_commands_and_aliases_from_sheet_row(row: dict[str, str]) -> list[str]:
+    """Extract a command's name and all of it's aliases from a Google Sheet's row."""
+    cmd_aliases = row["COMMAND NAME"].split("\n") + row["COMMAND ALIASES"].split("\n")
+    return [c for c in cmd_aliases if c]
+
+
+def get_sender_method(ctx: Message | Context) -> Callable:
+    """Return a function to send a Discord message to either a context or a message's channel."""
+    if type(ctx) is Context:
+        return ctx.send
+    elif type(ctx) is Message:
+        return ctx.channel.send
+
+    # will never happen
+    return lambda x: x
+
+
+def parse_sheet_boolean(v: str):
+    """Convert a Google Sheet's boolean (in form of string) to a Python bool."""
+    return v == "TRUE"
