@@ -6,8 +6,8 @@ import discord
 from discord.ext import commands
 from discord.utils import get
 
-from utilities import logger
-from utilities import utils
+from utilities import logger, utils
+from utilities.classes.project import Project
 
 
 class Utilities(commands.Cog):
@@ -51,22 +51,20 @@ class Utilities(commands.Cog):
             "abrir projetos."
         ),
     )
-    async def openProject(self, ctx, *projects):
+    async def openProject(self, ctx, *project_names):
         await ctx.trigger_typing()
         logger.info("`>openProject` command called.")
 
-        projects = utils.parse_piped_list(projects)
-        projects = [p for p in projects if not search(r"^\s*$", p)]
-
-        settings = utils.parse_settings_list(projects, ["mention"])
+        project_names = utils.parse_piped_list(project_names)
+        settings = utils.parse_settings_list(project_names, ["mention"])
         mention_txt, mention = settings["mention"] if settings else None, None
 
-        logger.info(f"The passed projects are: {''.join(projects)}.", 2)
+        logger.info(f"The passed projects are: {''.join(project_names)}.", 2)
 
         if (
             utils.in_diretoria(ctx.author)
-            or not projects
-            or len(projects) > len(utils.AVAILABLE_REACTIONS)
+            or not project_names
+            or len(project_names) > len(utils.AVAILABLE_REACTIONS)
         ):
             await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
 
@@ -84,9 +82,6 @@ class Utilities(commands.Cog):
 
         await utils.react_message(ctx.message, ["🔑", "🚪"])
 
-        server = ctx.guild
-        server_roles = await server.fetch_roles()
-
         if mention_txt:
             mention = await utils.parse_role(mention_txt, ctx.guild)
 
@@ -97,54 +92,41 @@ class Utilities(commands.Cog):
             elif mention_txt.lower() != "everyone":
                 mention = mention.mention
 
-        # sleep time in minutes
+        logger.info("The roles are being created.", 2)
+        emojis = utils.AVAILABLE_REACTIONS
+        random.shuffle(emojis)
+
+        projects = []
+        emoji_project = {}
+        for p in project_names:
+            project = Project(emojis.pop(), ctx.guild)
+            await project.process_role(p)
+            emoji_project[project.emoji] = project
+            projects.append(project)
+
         sleep_time_minutes = 20
         sleep_time_hours = 12
 
-        reactions = {}  # { [project]: reaction }
-        projects_str = (
+        projects_message = (
             "`[ABERTURA DE PROJETOS]`\n\n"
             f'{mention if mention_txt else ""}{" " if mention_txt else ""}'
             "Reaja (nesta mensagem) com os respectivos emojis para "
-            "ser adicionado aos projetos/cargos a seguir.\n"
-        )
+            "ser adicionado aos projetos/cargos a seguir.\n\n"
+        ) + "\n".join([f"**{p.name}**: {p.emoji}" for p in projects])
 
-        # adds a reaction for each project
-        for project in projects:
-            new_reaction = random.choice(
-                [r for r in utils.AVAILABLE_REACTIONS if r not in reactions.values()]
+        response = await ctx.send(
+            projects_message
+            + (
+                f"\n\nDaqui a __{sleep_time_minutes} "
+                "minutos__, vou criar e adicionar os cargos "
+                "a quem já reagiu. Depois disso, pelas "
+                f"próximas __{sleep_time_hours} horas__, vou "
+                "continuar adicionando cargos a quem reagir,"
+                " para caso alguém queira entrar no projeto "
+                "depois :)"
             )
-            projects_str += f"\n**{project}**: {new_reaction}"
-            reactions[project] = new_reaction
-
-        response = projects_str + (
-            f"\n\nDaqui a __{sleep_time_minutes} "
-            "minutos__, vou criar e adicionar os cargos "
-            "a quem já reagiu. Depois disso, pelas "
-            f"próximas __{sleep_time_hours} horas__, vou "
-            "continuar adicionando cargos a quem reagir,"
-            " para caso alguém queira entrar no projeto "
-            "depois :)"
         )
-
-        response = await ctx.send(response)
-        await utils.react_message(response, list(reactions.values()))
-
-        logger.info("The roles are being created.", 2)
-        roles = {
-            reactions[project]: get(server_roles, name=project)
-            or await server.create_role(
-                name=project,
-                permissions=discord.Permissions(3661376),
-                mentionable=True,
-                reason="Abertura de projeto.",
-            )
-            for project in projects
-        }
-        logger.info(
-            f"The roles were successfully created: {', '.join([role.name for role in roles.values()])}.",
-            2,
-        )
+        await utils.react_message(response, [p.emoji for p in projects])
 
         # Sleep for $sleep_time_minutes
         logger.info(
@@ -152,56 +134,31 @@ class Utilities(commands.Cog):
             2,
         )
         await sleep(60 * sleep_time_minutes)
+
         logger.info("The '>openProject' command is done sleeping.", 1)
-
-        logger.info("Fetching message reactions.", 2)
         cached_msg = await ctx.fetch_message(response.id)
-        logger.info(f"Fetched message's id: {cached_msg.id}", 2)
 
-        members = {}  # { [reaction_emoji]: members_in_project }
-
-        def get_project_report(reaction: discord.Reaction) -> str:
-            """
-            Parameters
-            ----------
-            reaction (discord.Reaction): the reaction that represents the project.
-
-            Returns
-            -------
-            str: text listing that project's members.
-            """
-            return (
-                f"**Projeto**: {reaction.emoji} {roles[reaction.emoji].mention}"
-                f"\n**Integrantes** [{len(members[reaction.emoji])}]: "
-                f"{', '.join([member.mention for member in members[reaction.emoji]]) if members[reaction.emoji] else 'poxa, ninguém'}."
-            )
-
-        # add roles to users who reacted
+        # add roles to people who reacted
         await ctx.send("`[PROJETOS ABERTOS]`", delete_after=3600)
         for reaction in cached_msg.reactions:
-            if reaction.emoji not in reactions.values():
+            if reaction.emoji not in emoji_project.keys():
                 continue
 
             await ctx.trigger_typing()
 
-            logger.info(f"Fetching who reacted {reaction.emoji}.", 2)
-            members_reacted = [
-                await server.fetch_member(user.id)
-                for user in [m for m in await reaction.users().flatten() if not m.bot]
-            ]
-            logger.info(f"Adding role {roles[reaction.emoji]} to members.", 2)
-
-            for member in members_reacted:
-                await member.add_roles(roles[reaction.emoji])
-            logger.info(
-                f"{roles[reaction.emoji].name} was successfully created and added to the project's members.",
-                2,
+            project = emoji_project[reaction.emoji]
+            project.members.extend(
+                [
+                    await ctx.guild.fetch_member(user.id)
+                    for user in [
+                        m for m in await reaction.users().flatten() if not m.bot
+                    ]
+                ]
             )
-
-            members[reaction.emoji] = members_reacted
+            await project.add_role_to_members()
 
             response = await ctx.send(
-                get_project_report(reaction) + "\n\nCargo criado com sucesso!",
+                str(project) + "\n\nCargo criado com sucesso!",
                 delete_after=3600,
             )
             await utils.react_message(response, reaction.emoji)
@@ -229,11 +186,10 @@ class Utilities(commands.Cog):
                 f"The '>openProject' has slept for {i+1} hours. Searching for new reactions...",
                 2,
             )
-
-            # fetches the message again
             cached_msg = await ctx.fetch_message(cached_msg.id)
+
             await cached_msg.edit(
-                content=f"{projects_str}\n\nAinda estarei "
+                content=f"{projects_message}\n\nAinda estarei "
                 "monitorando essa mensagem por algum tempo, "
                 f"você tem mais `{sleep_time_hours-(i+1)} "
                 "horas` para reagir."
@@ -241,29 +197,26 @@ class Utilities(commands.Cog):
 
             # adds the roles to every new member that reacted
             for reaction in cached_msg.reactions:
-                if reaction.emoji not in reactions.values():
+                if reaction.emoji not in emoji_project.keys():
                     continue
 
-                members_reacted = [
-                    await server.fetch_member(user.id)
-                    for user in [
-                        m
-                        for m in await reaction.users().flatten()
-                        if not m.bot and not roles[reaction.emoji].id in m.roles
+                await ctx.trigger_typing()
+
+                project = emoji_project[reaction.emoji]
+                project.members.extend(
+                    [
+                        await ctx.guild.fetch_member(user.id)
+                        for user in [
+                            m
+                            for m in await reaction.users().flatten()
+                            if not m.bot and m not in project.members
+                        ]
                     ]
-                ]
-
-                for member in members_reacted:
-                    await member.add_roles(roles[reaction.emoji])
-
-                members[reaction.emoji].extend(members_reacted)
-                logger.info(
-                    f"Reactors: {', '.join([member.name for member in members_reacted])}.",
-                    2,
                 )
+                await project.add_role_to_members()
 
         await cached_msg.edit(
-            content=f"{projects_str}\n\n**Não estou mais "
+            content=f"{projects_message}\n\n**Não estou mais "
             "monitorando essa mensagem, portanto não adianta "
             "mais reagir!** Se quiser participar de um dos "
             "projetos, entre em contato com o(a) gerente ou "
@@ -271,9 +224,9 @@ class Utilities(commands.Cog):
         )
 
         await ctx.send("`[PROJETOS ABERTOS]`")
-        for reaction in cached_msg.reactions:
-            response = await ctx.send(get_project_report(reaction))
-            await utils.react_message(response, reaction.emoji)
+        for project in projects:
+            response = await ctx.send(str(project))
+            await utils.react_message(response, project.emoji)
 
     # lists everybody that stays in the same voice channel as the author for at least 1min
     @commands.command(

@@ -1,4 +1,3 @@
-import pymongo
 from discord.ext import commands
 
 from setup.config import db
