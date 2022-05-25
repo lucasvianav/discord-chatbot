@@ -19,6 +19,7 @@ RESPONSE_EMOJI = "🤠"
 # channel in which to send welcome message for new members
 WELCOME_CHANNEL = "random"
 
+# TODO: un-hardcode this
 AVAILABLE_REACTIONS = [
     "🍉",
     "🎂",
@@ -37,6 +38,7 @@ AVAILABLE_REACTIONS = [
     "🥰",
 ]
 
+# TODO: un-hardcode this
 # list of vocatives to be used on the
 # welcome message for new members
 VOCATIVES = [
@@ -278,12 +280,6 @@ def create_messages_from_list(lines: list[str]) -> list[str]:
         messages.append(text)
 
     return messages
-
-
-def get_commands_and_aliases_from_sheet_row(row: dict[str, str]) -> list[str]:
-    """Extract a command's name and all of it's aliases from a Google Sheet's row."""
-    cmd_aliases = row["COMMAND NAME"].split("\n") + row["COMMAND ALIASES"].split("\n")
-    return [c for c in cmd_aliases if c]
 
 
 def get_sender_method(ctx: Message | Context) -> Callable:
