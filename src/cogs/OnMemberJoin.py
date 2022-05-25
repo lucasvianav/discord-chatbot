@@ -5,6 +5,8 @@ from utilities import logger, utils
 
 
 class onMemberJoin(commands.Cog):
+    """Commands to manage roles that are added to new members who join the channel."""
+
     def __init__(self, bot):
         self.bot = bot
         self.roles = (
@@ -13,7 +15,6 @@ class onMemberJoin(commands.Cog):
             else []
         )
 
-    # list all roles that'll be added to new members when they join the server
     @commands.command(
         name="onMemberJoinRoles?",
         aliases=["onMemberJoinRoles", "OMJroles", "OMJroles?"],
@@ -26,6 +27,7 @@ class onMemberJoin(commands.Cog):
         ),
     )
     async def listRoles(self, ctx):
+        """List all roles that'll be added to new members who join the channel."""
         await ctx.trigger_typing()
         logger.info("`>listRolesOMJ` command called.")
         await utils.react_message(ctx.message, ["🐥", utils.MESSAGE_EMOJI, "🚼"])
@@ -46,7 +48,6 @@ class onMemberJoin(commands.Cog):
         response = await ctx.send(response)
         await utils.react_response(response)
 
-    # add a new role to be added to new members when they join the server
     @commands.command(
         name="onMemberJoinRoles+",
         aliases=["OMJroles+"],
@@ -62,6 +63,7 @@ class onMemberJoin(commands.Cog):
         ),
     )
     async def addRoles(self, ctx, *roles):
+        """Add a new role to the list that'll be added to new members who join the channel."""
         await ctx.trigger_typing()
         logger.info("`>onMemberJoinRoles+` command called.")
 
@@ -137,6 +139,7 @@ class onMemberJoin(commands.Cog):
         ),
     )
     async def removeRoles(self, ctx, *roles):
+        """Remove a role from the list that'll be added to new members who join the channel."""
         await ctx.trigger_typing()
         logger.info("`>onMemberJoinRoles-` command called.")
 
@@ -183,7 +186,6 @@ class onMemberJoin(commands.Cog):
         response = await ctx.send(response)
         await utils.react_response(response)
 
-    # substitute the roles to be added to new members when they join the server
     @commands.command(
         name="onMemberJoinRoles!",
         aliases=["OMJroles!"],
@@ -193,12 +195,14 @@ class onMemberJoin(commands.Cog):
             "serve para substituir os cargos que serão adicionados a novos "
             "membros ao entrarem no servidor. É fundamental que o nome do cargo "
             "que você selecionou esteja exatamente igual ele é no Discord.\n\n"
-            'Você pode adicionar um ou mais cargos, separando-os com " | " '
-            '(caso um dos cargos possua " | " em seu nome, coloque-o como " \\| ").\n'
-            'e.g.: ">onMemberJoinRoles! NOME_CARGO_1 | NOME_CARGO_2 | NOME_CARGO_3"'
+            'Você pode substituir por zero ou mais cargos, separando-os com " | " '
+            '(caso um dos cargos possua " | " em seu nome, coloque-o como " \\| ").\n\n'
+            'e.g.: ">onMemberJoinRoles! NOME_CARGO_1 | NOME_CARGO_2 | NOME_CARGO_3"\n'
+            'e.g.: ">onMemberJoinRoles!" vai esvaziar a lista.'
         ),
     )
     async def substituteRoles(self, ctx, *roles):
+        """Substitute the roles in the list that'll be added to new members who join the channel."""
         await ctx.trigger_typing()
         logger.info("`>onMemberJoinRoles!` command called.")
 

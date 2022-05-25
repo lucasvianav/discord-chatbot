@@ -5,6 +5,8 @@ from utilities import logger, utils
 
 
 class Counters(commands.Cog):
+    """Commands that store and update a counter for how many times they were called."""
+
     def __init__(self, bot):
         self.bot = bot
         self.counters = (
@@ -12,11 +14,11 @@ class Counters(commands.Cog):
         )
 
     def update_counters(self):
+        """Update database."""
         db.find_one_and_update(
             {"description": "counters"}, {"$set": {"counters": self.counters}}
         )
 
-    # example of a command that uses a counter that increses each time it is called
     @commands.command(brief="Uma demonstração de amor!", help="Testa aí.")
     async def júlio(self, ctx):
         await ctx.trigger_typing()

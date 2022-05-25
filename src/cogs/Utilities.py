@@ -1,6 +1,5 @@
 import random
 from asyncio import sleep
-from re import search
 
 import discord
 from discord.ext import commands
@@ -11,10 +10,11 @@ from utilities.classes.project import Project
 
 
 class Utilities(commands.Cog):
+    """Commands for general utility functions."""
+
     def __init__(self, bot):
         self.bot = bot
 
-    # sends a poll-like message in which user can react to receive a new role
     @commands.command(
         aliases=[
             "openProjects",
@@ -52,6 +52,10 @@ class Utilities(commands.Cog):
         ),
     )
     async def openProject(self, ctx, *project_names):
+        """
+        Send a poll-like message in which users can react to receive a
+        role from a list. The role can be created through the command.
+        """
         await ctx.trigger_typing()
         logger.info("`>openProject` command called.")
 
@@ -228,7 +232,6 @@ class Utilities(commands.Cog):
             response = await ctx.send(str(project))
             await utils.react_message(response, project.emoji)
 
-    # lists everybody that stays in the same voice channel as the author for at least 1min
     @commands.command(
         aliases=["trackpresence", "presença", "registrarPresença", "registrarpresença"],
         brief="Registra presença de membros em reunião.",
@@ -245,6 +248,10 @@ class Utilities(commands.Cog):
         ),
     )
     async def trackPresence(self, ctx, duration="60"):
+        """
+        List everybody that (during the duration) stays in the same voice
+        channel as the author was originally in for at least a minute.
+        """
         await ctx.trigger_typing()
 
         if not ctx.author.voice:
@@ -314,7 +321,6 @@ class Utilities(commands.Cog):
         )
         await utils.react_response(response)
 
-    # kick all members that have a role (possibly not working)
     @commands.command(
         aliases=[],
         brief="Kicka do servidor todos os membros de um cargo (de vdd).",
@@ -329,6 +335,7 @@ class Utilities(commands.Cog):
         ),
     )
     async def kick(self, ctx, *argv):
+        """Kick all members that have a certain role."""
         await ctx.trigger_typing()
 
         logger.info("`>kick` command called.")
@@ -421,7 +428,6 @@ class Utilities(commands.Cog):
         response = await ctx.reply(response)
         await utils.react_response(response)
 
-    # list all members that have a role
     @commands.command(
         aliases=[],
         brief="Lista todos os membros de um cargo.",
@@ -437,6 +443,7 @@ class Utilities(commands.Cog):
         ),
     )
     async def members(self, ctx, *argv):
+        """List all members that have a certain role."""
         await ctx.trigger_typing()
 
         logger.info("`>members` command called.")

@@ -8,10 +8,7 @@ from utilities import logger, utils
 
 
 class Decisions(commands.Cog):
-    """
-    Module for decision-aiding-like commands, like chooshing an option from
-    a list.
-    """
+    """Commands for decision-aiding-like functionalities, like chooshing an option from a list."""
 
     def __init__(self, bot):
         self.bot = bot

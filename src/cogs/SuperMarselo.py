@@ -10,11 +10,12 @@ from selenium.webdriver.support.expected_conditions import (
 from selenium.webdriver.support.ui import WebDriverWait as waiter
 from webdriver_manager.chrome import ChromeDriverManager
 
-from utilities import logger
-from utilities import utils
+from utilities import logger, utils
 
 
 class SuperMarselo(commands.Cog):
+    """Crazy random commands."""
+
     def __init__(self, bot):
         self.bot = bot
         self.CHROME_DRIVER = ChromeDriverManager().install()
@@ -34,6 +35,7 @@ class SuperMarselo(commands.Cog):
         ),
     )
     async def codenames(self, ctx, createRoom=None):
+        """Create a Codenames room."""
         await ctx.trigger_typing()
         logger.info("`>codenames` command called.")
 
