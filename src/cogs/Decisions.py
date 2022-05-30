@@ -349,15 +349,15 @@ class Decisions(commands.Cog):
             )
 
         response = await ctx.send(string, file=File("images/chinelo-1.jpg"))
-        await utils.react_message(ctx.message, ["1️⃣"])
+        await utils.react_message(response, ["1️⃣"])
 
         response = await ctx.send(
             "tô jogando einnn...", file=File("images/chinelo-2.jpg")
         )
-        await utils.react_message(ctx.message, ["2️⃣"])
+        await utils.react_message(response, ["2️⃣"])
 
         response = await ctx.send("joguei!!!", file=File("images/chinelo-3.jpg"))
-        await utils.react_message(ctx.message, ["3️⃣"])
+        await utils.react_message(response, ["3️⃣"])
 
         result = random.choices(["cima", "baixo", "lado"], weights=[3, 3, 1], k=1)[0]
         string = f'O CHINELO CAIU VIRADO **PR{("A " + result.upper()) if result != "lado" else "O LADO"}**!!!'
