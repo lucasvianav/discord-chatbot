@@ -1,13 +1,17 @@
 # Discord Chatbot
 
-Simple bot that'll reply to commands (prefix '>') and on_message() triggers specified in a Google Sheets.
-The spreadsheet must have two worksheets named "triggers" and "commands", respectively.
+Simple bot developed as a tool for SA-SEL's Discord server.
 
-The code is kinda chaotic and not too well commented. Sorry.
+## Executing
+
+1.  `git clone git@github.com:sa-sel/discord-bot.git`
+2.  `cd /path/to/discord-bot/`
+3.  `pip install -r requirements.txt`
+4.  `python src/main.py`
 
 ## Config
 
-You must provide your own Google Sheets API's credentials variables as well as your Discord token, spreadsheet key and MongoDB Atlas URI. The data may be provided as a `credentials.json` and `.env` on the project's root directory or as Heroku config variables (if you're hosting in Heroku, see image below).
+You must provide your own Google Sheets API's credentials variables (or file) as well as your Discord token, spreadsheet key and MongoDB Atlas URI. The data may be provided as a `credentials.json` and `.env` on the project's root directory or as Heroku config variables (if you're hosting in Heroku, see image below).
 
 If you don't know how to get Google's API credentials, I recommend [this video](https://www.youtube.com/watch?v=cnPlKLEGR7E).
 
