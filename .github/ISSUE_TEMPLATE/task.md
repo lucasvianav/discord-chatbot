@@ -7,31 +7,27 @@ assignees: ''
 
 ---
 
-## Task description
+## Descrição das task
 
-<!-- Describe what the developer should do to complete the task. -->
+<!-- Descreva o que o dev deve fazer para completar a task. -->
 
-### Portuguese 🇧🇷
-
-<!-- Descreva o que o dev deve fazer para completar a task, em português. -->
-
-## References
+## Referências
 
 Relevant/related links:
 
-<!-- List any links that may help the developer complete the task. -->
+<!-- Lista de quaisquer links que podem ajudar o dev a fazer a task. -->
 -
 
-<!-- Do you have a snippet of code to help the developer in this task? -->
-## Example snippets
+<!-- Você tem uma rascunho de código que pode ajudar o dev a fazer a tarefa? -->
+## Código-exemplo (snippet)
 
 ```python
 <CODE>
 ```
 
-<!-- Does this task depend on any other? -->
+<!-- Essa task depende de alguma outra? -->
 ## Dependencies
 
-Depends on #<ISSUE_NUMBER>
+Depende de: #<ISSUE_NUMBER>
 
 ## Relevant images

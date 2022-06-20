@@ -1,16 +1,13 @@
-<!-- Substitute <ISSUE_NUMBER> by the task's actual issue number. -->
-Fixes #<ISSUE_NUMBER>
-
-## Description
-
-<!-- Describe what exactly you made (the task) and why it's important -->
+<!-- Substitua <ISSUE_NUMBER> pelo número da task. -->
+<!-- Para múltiplas tasks/issues, faça como "Fix #1, fix #2, fix #3, ..." -->
+Fix #<ISSUE_NUMBER>
 
 ## Changes
 
-In order complete the task, I propose the following changes:
+Para fazer a task, proponho as seguintes mudanças::
 
-<!-- Describe the changes you made to complete the task, in bulletpoints. -->
+<!-- Descreva as mudanças que você fez para completar a task, em tópicos -->
  -
 
-<!-- If the task's result is visual enough (e.g. new command's output), add a screenshot here so everyone can see it. If not, delete the following line.-->
+<!-- Se o resultado da task puder ser visualizado (por exemplo, o output de um comando), coloque uma screenshot/print aqui. Caso contrário, exclua a linha a seguir -->
 ## Relevant screenshots
