@@ -182,7 +182,8 @@ class SuperMarselo(commands.Cog):
                     ).click()
 
                     newHost = driver.find_element_by_xpath(
-                        '//div[@class="relative"]//span[contains(@class, "bg-green-online") and contains(@class, "rounded-full")]/following-sibling::span[not(contains(text(), "A Voz da SA-SEL"))]'
+                        '//div[@class="relative"]//span[contains(@class, "bg-green-online") and contains(@class, '
+                        '"rounded-full")]/following-sibling::span[not(contains(text(), "A Voz da SA-SEL"))]'
                     )
 
                     newHost.click()
@@ -193,7 +194,8 @@ class SuperMarselo(commands.Cog):
                     ).click()
                 except Exception:
                     response = await ctx.send(
-                        f'Alô, {ctx.author.mention}! Eu vou sair da sala, mas como ninguém mais entrou, a sala vai ficar sem host. Se quiserem que crie outra sala depois, é só chamar.\n\ncc: {" ".join(people)}'
+                        f"Alô, {ctx.author.mention}! Eu vou sair da sala, mas como ninguém mais entrou, a sala vai ficar sem host. "
+                        f'Se quiserem que crie outra sala depois, é só chamar.\n\ncc: {" ".join(people)}'
                     )
                 else:
                     response = await ctx.send(

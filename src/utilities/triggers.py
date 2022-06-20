@@ -50,7 +50,7 @@ async def hi(msg: Message):
 async def sad(msg: Message):
     await utils.react_message(msg, "😢")
     response = await msg.channel.send(
-        f"oh céus, oh deus, oh vida :c",
+        "oh céus, oh deus, oh vida :c",
         file=File("images/estou-devastado.png"),
     )
     await utils.react_response(response, "😿")
