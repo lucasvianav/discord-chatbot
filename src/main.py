@@ -170,10 +170,16 @@ async def refresh(ctx):
 
 @bot.command(
     aliases=["clean"],
-    brief="Limpa o chat,",
-    help="Exclui todas os comandos e mensagens do bot que foram enviadas nos últimos 10 minutos --- exceto mensagem 'importantes', como abertura de projetos.",
+    brief="Limpa o chat",
+    help=(
+        "Exclui todos os comandos e mensagens do bot que foram enviadas nos "
+        "últimos X minutos --- exceto mensagem 'importantes', como abertura de "
+        "projetos. Caso o argumento 'force' seja passado após a duração, >todas<"
+        " as mensagens nesse intervalo serão excluídas - incluindo mensagens que"
+        " não estão relacionadas ao bot."
+    ),
 )
-async def clear(ctx, delta="10min"):
+async def clear(ctx, delta="10min", force=None):
     await ctx.trigger_typing()
     logger.info(f"`>clear` command called on the {ctx.channel.name} channel.")
     await utils.react_message(ctx.message, "⚰")
@@ -200,13 +206,14 @@ async def clear(ctx, delta="10min"):
             ]
             + [False]
         )[0]
+        did_bot_react = get(message.reactions, me=True)
 
-        # hasPrefix = search('^>\S.*$', m.content)
-        did_i_react = get(message.reactions, me=True)
+        return not_pinned and not is_important and (is_me or did_bot_react)
 
-        return not_pinned and not is_important and (is_me or did_i_react)
-
-    deleted = await ctx.channel.purge(after=timestamp, check=filter_function)
+    if force == "force":
+        deleted = await ctx.channel.purge(after=timestamp)
+    else:
+        deleted = await ctx.channel.purge(after=timestamp, check=filter_function)
 
     response = await ctx.send(
         f"`{len(deleted)} mensagens foram excluídas.`", delete_after=20

@@ -13,7 +13,7 @@ assignees: ''
 
 ## Referências
 
-Relevant/related links:
+Links relevantes/relacionados à task:
 
 <!-- Lista de quaisquer links que podem ajudar o dev a fazer a task. -->
 -
@@ -26,8 +26,9 @@ Relevant/related links:
 ```
 
 <!-- Essa task depende de alguma outra? -->
-## Dependencies
+## Dependências
 
 Depende de: #<ISSUE_NUMBER>
 
-## Relevant images
+<!-- Caso não tenha nenhuma imagem a anexar, remover -->
+## Imagens relevantes
