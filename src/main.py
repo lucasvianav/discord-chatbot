@@ -211,7 +211,15 @@ async def clear(ctx, delta="10min", force=None):
         return not_pinned and not is_important and (is_me or did_bot_react)
 
     if force == "force":
-        deleted = await ctx.channel.purge(after=timestamp)
+        if not utils.in_diretoria(ctx.author):
+            await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
+
+            response = await ctx.send("Apenas membros da diretoria podem forçar a exclusão de mensagens alheias.")
+            await utils.react_response(response)
+
+            return
+        else:
+            deleted = await ctx.channel.purge(after=timestamp)
     else:
         deleted = await ctx.channel.purge(after=timestamp, check=filter_function)
 
