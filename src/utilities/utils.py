@@ -170,12 +170,16 @@ def parse_time(time: str) -> int | None:
     duration = int(re.sub(r"\D", "", time))
     unit = re.sub(r"\d", "", time)
 
-    if ("minutes").startswith(unit):
+    if ("seconds").startswith(unit):
+        pass
+    elif ("minutes").startswith(unit):
         duration *= 60
     elif ("hours").startswith(unit):
-        duration *= 3600
-    elif ("seconds").startswith(unit):
-        pass
+        duration *= 60 * 60
+    elif ("days").startswith(unit):
+        duration *= 24 * 60 * 60
+    elif ("weeks").startswith(unit):
+        duration *= 7 * 24 * 60 * 60
     else:
         duration = None
 
