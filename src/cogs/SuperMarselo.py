@@ -12,7 +12,6 @@ class SuperMarselo(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
-        self.CHROME_DRIVER = ChromeDriverManager().install()
 
     @commands.command(
         brief="Separa os times pro famigerado.",
