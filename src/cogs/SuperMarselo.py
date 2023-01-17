@@ -3,13 +3,6 @@ from asyncio import sleep
 
 from discord import File
 from discord.ext import commands
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.expected_conditions import (
-    presence_of_element_located as presence,
-)
-from selenium.webdriver.support.ui import WebDriverWait as waiter
-from webdriver_manager.chrome import ChromeDriverManager
 
 from utilities import logger, utils
 
@@ -25,17 +18,11 @@ class SuperMarselo(commands.Cog):
         brief="Separa os times pro famigerado.",
         help=(
             "Esse comando separa dois times para jogar codenames, já "
-            "selecionando quem vai ser o spymaster de cada time.\n\nSe você "
-            "quiser, ele pode, ainda, criar uma sala de Codenames e enviar o "
-            "link. Para isso, adicione um dos argumentos a seguir: "
-            '"$createRoom=true", "$createRoom", "True", "createRoom", '
-            '"criarSala", "link", "URL", "URI".\ne.g.: ">codenames '
-            '$createRoom=True", ou ">codenames True", ou ">codenames link", '
-            "etc.\n\nÉ necessário estar conectado a um canal de voz com pelo "
+            "selecionando quem vai ser o spymaster de cada time.\n\nÉ necessário estar conectado a um canal de voz com pelo "
             "menos mais três pessoas para ativar esse comando."
         ),
     )
-    async def codenames(self, ctx, createRoom=None):
+    async def codenames(self, ctx):
         """Create a Codenames room."""
         await ctx.trigger_typing()
         logger.info("`>codenames` command called.")
@@ -57,17 +44,6 @@ class SuperMarselo(commands.Cog):
         else:
             await utils.react_message(ctx.message, ["🎲", "🎮", "🏏", "🕹️"])
 
-        createRoom = createRoom and createRoom.lower() in [
-            "$createroom=true",
-            "$createroom",
-            "true",
-            "createroom",
-            "criarsala",
-            "link",
-            "url",
-            "uri",
-        ]
-
         logger.info(f"{len(members)} members are present.", 2)
         logger.info(f'A room will {"" if createRoom else "not"} be created.', 2)
 
@@ -88,75 +64,8 @@ class SuperMarselo(commands.Cog):
 
         logger.info("The teams were created.", 2)
 
-        if createRoom:
-            logger.info("A room is being created.", 2)
-
-            opt = webdriver.ChromeOptions()
-            opt.add_argument("--headless")
-            opt.add_argument("--disable-dev-shm-usage")
-            opt.add_argument("--disable-gpu")
-            opt.add_argument("--no-sandbox")
-            opt.add_argument("--disable-extensions")
-
-            logger.info("Opening the website...", 2)
-
-            driver = webdriver.Chrome(executable_path=self.CHROME_DRIVER, options=opt)
-            driver.get("https://codenames.game/room/create")
-
-            try:
-                await ctx.trigger_typing()
-
-                waiter(driver, 10, poll_frequency=0.1).until(
-                    presence(
-                        (By.XPATH, '//h1[contains(text(), "Welcome to Codenames")]')
-                    )
-                )
-
-                logger.info("Waiting for the website to load...", 2)
-
-                driver.find_element_by_xpath('//input[@id="nickname-input"]').send_keys(
-                    "A Voz da SA-SEL"
-                )
-                driver.find_element_by_xpath(
-                    '//button[contains(text(), "Create Room") and contains(@type, "submit")]'
-                ).click()
-
-                logger.info("Setting up the game...", 2)
-
-                waiter(driver, 10, poll_frequency=0.1).until(
-                    presence((By.XPATH, '//span[contains(text(), "Set up a game")]'))
-                )
-
-                driver.find_element_by_xpath(
-                    '//div[contains(@class, "flag") and contains(@class, "pt")]'
-                ).click()
-
-                driver.find_element_by_xpath(
-                    '//button[contains(text(), "Start New Game")]'
-                ).click()
-
-                logger.info("Waiting for the room to be created...", 2)
-
-                waiter(driver, 10, poll_frequency=0.1).until(
-                    presence(
-                        (
-                            By.XPATH,
-                            '//div[contains(text(), "A Voz da SA-SEL") and contains(@class, "button-inner")]',
-                        )
-                    )
-                )
-            except Exception:
-                roomURL = None
-                driver.quit()
-            else:
-                roomURL = driver.current_url
-        else:
-            roomURL = None
-            driver = None
-
         response = await ctx.send(
             "`TÁ NA HORA DO CODENAMES GAROTADA`\n\n"
-            + (f"**Link da sala**: {roomURL}\n\n" if roomURL else "")
             + f"**Time azul**  🔵:\n__*Spymaster*__: {blueSpymaster}\n"
             + f'__*Operatives*__: {", ".join(blueOperatives)}\n\n**Time '
             + f"vermelho**  🔴:\n__*Spymaster*__: {redSpymaster}\n"
@@ -164,55 +73,6 @@ class SuperMarselo(commands.Cog):
             + "Que vença o melhor time!"
         )
         await utils.react_response(response)
-
-        # if a room was created, the bot needs
-        # to leave it after someone entered
-        if driver:
-            await sleep(180)
-            await ctx.trigger_typing()
-
-            try:
-                people = (
-                    [blueSpymaster] + blueOperatives + [redSpymaster] + redOperatives
-                )
-
-                try:
-                    driver.find_element_by_xpath(
-                        '//button//span[text()="Players"]'
-                    ).click()
-
-                    newHost = driver.find_element_by_xpath(
-                        '//div[@class="relative"]//span[contains(@class, "bg-green-online") and contains(@class, '
-                        '"rounded-full")]/following-sibling::span[not(contains(text(), "A Voz da SA-SEL"))]'
-                    )
-
-                    newHost.click()
-                    waiter(driver, 5, poll_frequency=0.1).until(
-                        presence(
-                            (By.XPATH, '//button[contains(text(), "Make a Host")]')
-                        )
-                    ).click()
-                except Exception:
-                    response = await ctx.send(
-                        f"Alô, {ctx.author.mention}! Eu vou sair da sala, mas como ninguém mais entrou, a sala vai ficar sem host. "
-                        f'Se quiserem que crie outra sala depois, é só chamar.\n\ncc: {" ".join(people)}'
-                    )
-                else:
-                    response = await ctx.send(
-                        f'Alô, {ctx.author.mention}! Eu vou sair da sala, agora **o novo host é o `{newHost.text}`**.\n\ncc: {" ".join(people)}'
-                    )
-                finally:
-                    await utils.react_response(response)
-
-                driver.find_element_by_xpath(
-                    '//div[contains(text(), "A Voz da SA-SEL") and contains(@class, "button-inner")]'
-                ).click()
-                waiter(driver, 5, poll_frequency=0.1).until(
-                    presence((By.XPATH, '//div[text()="Leave the Room"]'))
-                ).click()
-            finally:
-                await sleep(3)
-                driver.quit()
 
     @commands.command(brief="Press F to pay respects.")
     async def F(self, ctx):

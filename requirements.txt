@@ -5,5 +5,3 @@ gspread==3.6.0
 pymongo==3.11.2
 python-dotenv==0.20.0
 requests==2.27.1
-selenium==3.141.0
-webdriver_manager==3.3.0
