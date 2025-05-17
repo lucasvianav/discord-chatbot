@@ -11,7 +11,7 @@ def __get_message(message: str, indent_level: int):
 
     new_line = "\n" if indent_level == 1 else ""
     indent = "  " * (indent_level - 1)
-    prefix = "[" + ("*" * indent_level) + "]"
+    prefix = "[" + ("*" * indent_level) + "] "
 
     return new_line + indent + prefix + message
 

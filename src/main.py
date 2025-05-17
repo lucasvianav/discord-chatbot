@@ -10,6 +10,7 @@ from discord.utils import get
 from setup import config
 from setup.config import bot, db, sheet
 from utilities import logger, utils
+from utilities.triggers import triggers
 
 
 @bot.event
@@ -58,7 +59,10 @@ async def on_message(message: discord.Message):
     if message.author == bot.user or message.content == ">":
         return
 
-    if message.content == ">help":
+    if (trigger := message.content.lower()) in triggers:
+        await triggers[trigger](message)
+        return
+    elif message.content == ">help":
         await utils.react_message(message)
     elif message.content.startswith(">help "):  # check for custom help texts
         await utils.react_message(message)
@@ -107,27 +111,28 @@ async def on_message(message: discord.Message):
                 await utils.react_response(response)
             return
     elif message.content.startswith(">") and (  # look for command
-        command := sheet.commands.get_command(message.content.lower()[1:])
+        command := sheet.commands.get_command(message.content[1:])
     ):
         logger.info(f"Command: '{command.name}', by {message.author.display_name}.")
         await utils.react_message(message)
         await command.send(message)
         return
-    elif not message.content.startswith(">"):  # look for trigger
-        if trigger := sheet.triggers.get_trigger(message.content):
-            logger.info(
-                f"Trigger: '{message.content.lower()}', by {message.author.display_name}."
-            )
-            await utils.react_message(message)
-            await trigger.send(message)
-            return
+    elif not message.content.startswith(">") and (
+        trigger := sheet.triggers.get_trigger(message.content)
+    ):
+        logger.info(
+            f"Trigger: '{message.content.lower()}', by {message.author.display_name}."
+        )
+        await utils.react_message(message)
+        await trigger.send(message)
+        return
 
     await bot.process_commands(message)
 
 
 @bot.command(
-    aliases=["dev"],
-    brief="Desenvolvedor do bot e repositório no GitHub.",
+    aliases=["dev", "créditos"],
+    brief="Desenvolvimento do bot e repositório no GitHub.",
 )
 async def credits(ctx):
     await ctx.trigger_typing()
@@ -136,9 +141,10 @@ async def credits(ctx):
     await utils.react_message(ctx.message, ["🤙", "🍉", "😁", "💜", "👋", "💻"])
 
     response = await ctx.reply(
-        """Esse bot foi desenvolvido pelo Flip em um momento de tédio. Obrigado pelo interesse <3
-        GitHub: https://github.com/lucasvianav.
-        Repositório no GitHub: https://github.com/lucasvianav/discord-chatbot."""
+        "Esse bot foi originalmente desenvolvido pelo Flip em um momento de "
+        "tédio e hoje é mantido pela Diretoria de Tecnologia.\n"
+        "Obrigado pelo interesse <3.\n"
+        "Repositório no GitHub: https://github.com/sa-sel/discord-bot."
     )
     logger.info("The response was successfully sent.", 2)
     await utils.react_response(response)
@@ -164,10 +170,16 @@ async def refresh(ctx):
 
 @bot.command(
     aliases=["clean"],
-    brief="Limpa o chat,",
-    help="Exclui todas os comandos e mensagens do bot que foram enviadas nos últimos 10 minutos --- exceto mensagem 'importantes', como abertura de projetos.",
+    brief="Limpa o chat",
+    help=(
+        "Exclui todos os comandos e mensagens do bot que foram enviadas nos "
+        "últimos X minutos --- exceto mensagem 'importantes', como abertura de "
+        "projetos. Caso o argumento 'force' seja passado após a duração, >todas<"
+        " as mensagens nesse intervalo serão excluídas - incluindo mensagens que"
+        " não estão relacionadas ao bot."
+    ),
 )
-async def clear(ctx, delta="10min"):
+async def clear(ctx, delta="10min", force=None):
     await ctx.trigger_typing()
     logger.info(f"`>clear` command called on the {ctx.channel.name} channel.")
     await utils.react_message(ctx.message, "⚰")
@@ -194,13 +206,22 @@ async def clear(ctx, delta="10min"):
             ]
             + [False]
         )[0]
+        did_bot_react = get(message.reactions, me=True)
 
-        # hasPrefix = search('^>\S.*$', m.content)
-        did_i_react = get(message.reactions, me=True)
+        return not_pinned and not is_important and (is_me or did_bot_react)
 
-        return not_pinned and not is_important and (is_me or did_i_react)
+    if force == "force":
+        if not utils.in_diretoria(ctx.author):
+            await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
 
-    deleted = await ctx.channel.purge(after=timestamp, check=filter_function)
+            response = await ctx.send("Apenas membros da diretoria podem forçar a exclusão de mensagens alheias.")
+            await utils.react_response(response)
+
+            return
+        else:
+            deleted = await ctx.channel.purge(after=timestamp)
+    else:
+        deleted = await ctx.channel.purge(after=timestamp, check=filter_function)
 
     response = await ctx.send(
         f"`{len(deleted)} mensagens foram excluídas.`", delete_after=20

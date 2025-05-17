@@ -2,6 +2,7 @@ import random
 from asyncio import sleep
 from random import shuffle
 
+from discord import File
 from discord.ext import commands
 
 from utilities import logger, utils
@@ -61,7 +62,7 @@ class Decisions(commands.Cog):
         """
         await ctx.trigger_typing()
         logger.info("`>choose` command called.")
-        await utils.react_message(ctx.message, ["❔"])
+        await utils.react_message(ctx.message, "❔")
 
         chosen = random.choice(utils.parse_piped_list(options))
         response = await ctx.reply(chosen)
@@ -228,7 +229,7 @@ class Decisions(commands.Cog):
 
             people = await reaction.users().flatten()
             people = [
-                await server.fetch_member(user.id).display_name
+                (await server.fetch_member(user.id)).display_name
                 for user in [member for member in people if not member.bot]
             ]
 
@@ -286,6 +287,94 @@ class Decisions(commands.Cog):
                 + report
             )
             await utils.react_message(response, winner_reactions)
+
+    @commands.command(
+        brief='Também conhecido como "dois ou um", pelas más línguas.',
+        help='Gera duas palavras ou números aleatórios para jogar "zerinho ou um".',
+        aliases=["zeringo", "zerinho", "zerinhoum"],
+    )
+    async def zerinho1(self, ctx):
+        await ctx.trigger_typing()
+        logger.info("`>zerinho1` command called.")
+
+        await utils.react_message(ctx.message, ["0️⃣", "❔", "1️⃣", "❓"])
+
+        possibilities = (int, str)
+        output = (
+            [random.randint(0, 7777) for _ in range(2)]
+            if random.choice(possibilities) is int
+            else random.choices(utils.get_words(), k=2)
+        )
+
+        response = await ctx.send(
+            "-----------------------------\n`O ZERINHO OU UM OFICIAL É:`\n"
+            f"**{output[0]}** ou **{output[1]}**\n||boa sorte a todos||"
+        )
+        await utils.react_response(response)
+
+    @commands.command(
+        brief="Executa a milenar tática do chinelo.",
+        help=(
+            "Executa a clássica e milenar tática do chinelo para escolher "
+            "entre duas opções, cunhada por Luís, o Corno. Você joga o chinelo e "
+            "vê se ele cai de cabeça pra cima ou pra baixo - cada um é uma "
+            "opção. Você pode, mas não precisa, selecionar duas opções "
+            'passando-as separadas por | para o comando.\ne.g.: ">chinelo", '
+            '">chinelo pizza | hamburger"'
+        ),
+    )
+    async def chinelo(self, ctx, *options):
+        await ctx.trigger_typing()
+        logger.info("`>chinelo` command called.")
+        await utils.react_message(ctx.message, ["👡", "🩰", "🥿", "🏑"])
+
+        string = "vou jogar o chinelooooo..."
+        winner = {}
+
+        if options:
+            options = utils.parse_piped_list(options)
+            if len(options) != 2:
+                response = await ctx.reply(
+                    "Você pode passar **nenhum** ou **dois** argumentos para "
+                    "esse comando, qualquer outra quantidade é inválida. "
+                    "Para mais informações, envie `>help chinelo`."
+                )
+                await utils.react_message(ctx.message, ["🙅‍♂️", "❌", "🙅‍♀️"])
+                return
+
+            winner = {"cima": options[0], "baixo": options[1]}
+            string += (
+                f"\n\nse cair virado pra cima, vai ser `{winner['cima']}`. se "
+                f"cair virado pra baixo, vai ser `{winner['baixo']}`."
+            )
+
+        response = await ctx.send(string, file=File("images/chinelo-1.jpg"))
+        await utils.react_message(response, ["1️⃣"])
+
+        response = await ctx.send(
+            "tô jogando einnn...", file=File("images/chinelo-2.jpg")
+        )
+        await utils.react_message(response, ["2️⃣"])
+
+        response = await ctx.send("joguei!!!", file=File("images/chinelo-3.jpg"))
+        await utils.react_message(response, ["3️⃣"])
+
+        result = random.choices(["cima", "baixo", "lado"], weights=[3, 3, 1], k=1)[0]
+        string = f'O CHINELO CAIU VIRADO **PR{("A " + result.upper()) if result != "lado" else "O LADO"}**!!!'
+
+        if options:
+            string += (
+                "\n\n"
+                + (
+                    f"`{winner[result]}`"
+                    if result != "lado"
+                    else "infelizmente nenhuma opção"
+                )
+                + " venceu"
+            )
+
+        response = await ctx.reply(string, file=File(f"images/chinelo-4-{result}.jpg"))
+        await utils.react_response(response, ["🧑‍💻"])
 
 
 def setup(bot):

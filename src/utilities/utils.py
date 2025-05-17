@@ -4,6 +4,8 @@ from typing import Callable
 
 import discord
 import requests
+from bs4 import BeautifulSoup
+from bs4.element import Tag
 from discord import Message
 from discord.ext.commands.context import Context
 from discord.utils import get
@@ -52,12 +54,16 @@ VOCATIVES = [
     "caro",
     "chegado",
     "comparsa",
+    "comum",
     "consagrado",
     "cumpadi",
     "democrata",
     "donatário",
     "filho",
+    "grande gatsby",
     "iluminado",
+    "joca",
+    "miguel",
     "parnasiano",
     "patrão",
     "peregrino",
@@ -65,10 +71,6 @@ VOCATIVES = [
     "tributarista",
     "vacinado",
     "zé",
-    "comum",
-    "joca",
-    "miguel",
-    "grande gatsby",
 ]
 
 
@@ -168,12 +170,16 @@ def parse_time(time: str) -> int | None:
     duration = int(re.sub(r"\D", "", time))
     unit = re.sub(r"\d", "", time)
 
-    if ("minutes").startswith(unit):
+    if ("seconds").startswith(unit):
+        pass
+    elif ("minutes").startswith(unit):
         duration *= 60
     elif ("hours").startswith(unit):
-        duration *= 3600
-    elif ("seconds").startswith(unit):
-        pass
+        duration *= 60 * 60
+    elif ("days").startswith(unit):
+        duration *= 24 * 60 * 60
+    elif ("weeks").startswith(unit):
+        duration *= 7 * 24 * 60 * 60
     else:
         duration = None
 
@@ -296,3 +302,12 @@ def get_sender_method(ctx: Message | Context) -> Callable:
 def parse_sheet_boolean(v: str):
     """Convert a Google Sheet's boolean (in form of string) to a Python bool."""
     return v == "TRUE"
+
+
+def get_words() -> list[str]:
+    """Get a list of words from a portuguese online dictionary's website."""
+    r = requests.get("https://www.dicionarioinformal.com.br/")
+    soup = BeautifulSoup(r.text, "html.parser")
+    divs = soup.find("div", class_="col-sm-12 col-md-4")
+    words = divs.findAll("span") if divs and type(divs) is Tag else []
+    return [word.text for word in words]
